@@ -24,3 +24,12 @@ footer{border-top:1px solid var(--line);padding:16px 0 20px;display:flex;justify
 @media(max-width:1050px){.roadmap-steps{grid-template-columns:1fr 1fr}.progress-topline{align-items:flex-start;flex-direction:column;gap:8px}}
 @media(max-width:760px){.roadmap-steps{grid-template-columns:1fr 1fr}.progress-topline>strong{white-space:normal}.lesson-footer{align-items:flex-start;flex-direction:column}.lesson-complete{width:100%}.roadmap-heading{flex-direction:column}.source-links{flex-direction:column;gap:10px}}
 @media(prefers-reduced-motion:reduce){.progress-fill{transition:none}.feature-card{transition:none}}
+
+/* Clear learning call-to-action */
+.progress-actions{display:flex;align-items:center;gap:14px}
+.start-lessons-button{display:inline-flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap;min-height:39px;padding:0 15px}
+.start-lessons-button span{font-size:16px;line-height:1}
+.lesson.start-target{border-color:#6d99eb;box-shadow:0 0 0 2px #6d99eb24}
+.lesson-complete{min-height:30px}
+@media(max-width:1050px){.progress-actions{flex-wrap:wrap}.start-lessons-button{min-height:37px}}
+@media(max-width:760px){.progress-actions{width:100%;align-items:flex-start;flex-direction:column;gap:10px}.start-lessons-button{width:100%}}
