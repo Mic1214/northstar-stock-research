@@ -59,6 +59,12 @@ searchInput.addEventListener("keydown", function(event) {
   if (!grid) return;
 
   const cards = Array.from(grid.querySelectorAll("[data-lesson-id]"));
+  const emptyState = document.createElement("p");
+  emptyState.className = "lesson-empty-state";
+  emptyState.setAttribute("role", "status");
+  emptyState.hidden = true;
+  emptyState.textContent = "No lessons match your search and selected topic. Try another search or choose All lessons.";
+  grid.insertAdjacentElement("afterend", emptyState);
   const search = document.getElementById("lesson-search");
   const filterButtons = Array.from(document.querySelectorAll("[data-lesson-filter]"));
   const count = document.getElementById("lesson-result-count");
@@ -105,6 +111,7 @@ searchInput.addEventListener("keydown", function(event) {
       if (show) visible += 1;
     });
     count.textContent = "Showing " + visible + " of " + cards.length + " lessons";
+    emptyState.hidden = visible !== 0;
   }
 
   filterButtons.forEach(function(button) {
