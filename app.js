@@ -138,3 +138,41 @@ searchInput.addEventListener("keydown", function(event) {
   filterLessons();
   updateProgress();
 })();
+
+
+/* Clear entry point for beginning or continuing lessons */
+(function setupStartLessonsButton() {
+  const startButton = document.getElementById("start-lessons-button");
+  const lessonGrid = document.getElementById("lesson-grid");
+  if (!startButton || !lessonGrid) return;
+
+  startButton.addEventListener("click", function() {
+    const cards = Array.from(lessonGrid.querySelectorAll("[data-lesson-id]"));
+    if (!cards.length) return;
+
+    const completedIds = new Set();
+    try {
+      const saved = JSON.parse(window.localStorage.getItem("northstar-completed-lessons-v1") || "[]");
+      if (Array.isArray(saved)) saved.forEach(function(id) { completedIds.add(id); });
+    } catch (error) {
+      // If local storage is blocked, simply start at the first lesson.
+    }
+
+    const nextLesson = cards.find(function(card) {
+      return !completedIds.has(card.dataset.lessonId);
+    }) || cards[0];
+
+    const search = document.getElementById("lesson-search");
+    if (search && search.value) {
+      search.value = "";
+      search.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    const allFilter = document.querySelector('[data-lesson-filter="all"]');
+    if (allFilter && !allFilter.classList.contains("active")) allFilter.click();
+
+    cards.forEach(function(card) { card.classList.remove("start-target"); });
+    nextLesson.classList.add("start-target");
+    nextLesson.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(function() { nextLesson.classList.remove("start-target"); }, 2200);
+  });
+})();
