@@ -1,6 +1,6 @@
-# Northstar Stock Research
+# Meridian Financial Research
 
-Northstar is a beginner-friendly stock research and learning website, developed in small, testable stages.
+Meridian is a beginner-friendly financial research and learning website, developed in small, testable stages.
 
 ## Current stage
 - Responsive dark-mode interface with six sections
