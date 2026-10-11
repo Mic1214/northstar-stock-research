@@ -129,6 +129,18 @@ searchInput.addEventListener("keydown", function(event) {
   search.addEventListener("input", filterLessons);
 
   grid.addEventListener("click", function(event) {
+    const startButton = event.target.closest(".lesson-start-button");
+    if (!startButton) return;
+    const card = startButton.closest("[data-lesson-id]");
+    if (!card) return;
+    const details = card.querySelector("details");
+    if (details) details.open = true;
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    const summary = details && details.querySelector("summary");
+    if (summary) summary.focus({ preventScroll: true });
+  });
+
+  grid.addEventListener("click", function(event) {
     const button = event.target.closest("[data-complete]");
     if (!button) return;
     const id = button.dataset.complete;
@@ -185,32 +197,5 @@ searchInput.addEventListener("keydown", function(event) {
     const lessonSummary = lessonDetails && lessonDetails.querySelector("summary");
     if (lessonSummary) lessonSummary.focus({ preventScroll: true });
     window.setTimeout(function() { nextLesson.classList.remove("start-target"); }, 2200);
-  });
-})();
-
-
-/* Give every lesson its own clear starting action */
-(function setupIndividualLessonButtons() {
-  const grid = document.getElementById("lesson-grid");
-  if (!grid) return;
-
-  grid.querySelectorAll("[data-lesson-id]").forEach(function(card) {
-    const footer = card.querySelector(".lesson-footer");
-    const details = card.querySelector("details");
-    if (!footer || !details || footer.querySelector(".lesson-start-button")) return;
-
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "lesson-start-button";
-    button.textContent = "Start lesson";
-    button.setAttribute("aria-label", "Start lesson: " + (card.querySelector("h2")?.textContent || "lesson"));
-    button.addEventListener("click", function() {
-      details.open = true;
-      card.scrollIntoView({ behavior: "smooth", block: "center" });
-      const summary = details.querySelector("summary");
-      if (summary) summary.focus({ preventScroll: true });
-    });
-
-    footer.insertBefore(button, footer.querySelector("[data-complete]"));
   });
 })();
