@@ -4,7 +4,8 @@ const pages = {
   analysis: "Analysis Lab",
   learning: "Learning Center",
   portfolio: "Portfolio",
-  reports: "Daily Report"
+  reports: "Daily Report",
+  settings: "Settings"
 };
 
 function showPage(page) {
@@ -197,5 +198,44 @@ searchInput.addEventListener("keydown", function(event) {
     const lessonSummary = lessonDetails && lessonDetails.querySelector("summary");
     if (lessonSummary) lessonSummary.focus({ preventScroll: true });
     window.setTimeout(function() { nextLesson.classList.remove("start-target"); }, 2200);
+  });
+})();
+
+
+/* Persistent interface color theme; market gain/loss colors remain semantic. */
+(function setupColorThemes() {
+  const validThemes = new Set(["blue", "purple", "indigo", "cyan"]);
+  const storageKey = "meridian-color-theme-v1";
+  const themeButtons = Array.from(document.querySelectorAll("[data-theme-choice]"));
+
+  function applyTheme(theme, savePreference) {
+    if (!validThemes.has(theme)) theme = "blue";
+    document.documentElement.setAttribute("data-theme", theme);
+    themeButtons.forEach(function(button) {
+      const selected = button.dataset.themeChoice === theme;
+      button.classList.toggle("active", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
+    if (savePreference) {
+      try {
+        window.localStorage.setItem(storageKey, theme);
+      } catch (error) {
+        // The theme still applies for this page view if storage is unavailable.
+      }
+    }
+  }
+
+  let savedTheme = "blue";
+  try {
+    const stored = window.localStorage.getItem(storageKey);
+    if (stored && validThemes.has(stored)) savedTheme = stored;
+  } catch (error) {
+    // Start with the default blue theme if browser storage is unavailable.
+  }
+  applyTheme(savedTheme, false);
+  themeButtons.forEach(function(button) {
+    button.addEventListener("click", function() {
+      applyTheme(button.dataset.themeChoice, true);
+    });
   });
 })();
