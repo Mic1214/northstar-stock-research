@@ -3,23 +3,25 @@
 Northstar is a beginner-friendly stock research and learning website, developed in small, testable stages.
 
 ## Current stage
-- Responsive dark-mode interface
-- Market Overview, Stock Research, Analysis Lab, Learning Center, Portfolio, and Daily Report sections
-- Introductory financial definitions and working navigation
-- No live market data connected yet; the prototype does not fabricate prices, headlines, returns, or scores
+- Responsive dark-mode interface with six sections
+- Learning Center with 18 beginner lessons, source links, search, topic filters, and progress marks stored locally in the browser
+- Accessible navigation and mobile-friendly layouts
+- No live market data connected yet; the prototype does not fabricate prices, headlines, returns, company examples, or scores
+- Company listings, ticker examples, live prices, and market headlines are intentionally withheld until the owner approves finishing the small interface refinements
 
 ## Run locally
 Open `index.html` in a modern browser. No build step or API key is required.
 
 ## Hosting
-This repository includes a GitHub Actions workflow to publish the static site to GitHub Pages when files are pushed to `main`. Check the Actions tab for the deployment status after each update. The first deployment may require enabling Pages in the repository Settings under Pages and selecting GitHub Actions as the build source.
+The site is published through GitHub Pages. The workflow in `.github/workflows/pages.yml` redeploys the current files after changes are pushed to `main`. Deployment status is available in the repository's Actions tab.
 
 ## Roadmap
-1. Connect a legitimate financial-data source and show source links and timestamps.
-2. Add company research, financial statements, and explained metrics.
-3. Add a transparent analysis checklist with uncertainty and clear limitations.
-4. Add portfolio and retirement-account tracking, keeping contributions separate from investment returns.
-5. Add researched daily reports if reliable free data and scheduling are available.
+1. Finish small interface refinements and educational lessons.
+2. Agree on the research features and verify suitable, legitimate financial-data sources before adding any market data.
+3. Add company research, financial statements, and explained metrics with source links and timestamps.
+4. Add transparent analysis checklists with uncertainty and limitations.
+5. Add portfolio and retirement-account tracking, keeping contributions separate from investment returns.
+6. Add researched daily reports only if reliable data and scheduling are available.
 
 ## Accuracy and safety
 This website is educational and is not investment advice. Data providers may have limits or paid tiers; verify their current terms before integrating them. Never add passwords, private account information, or secret API keys to this public repository.
