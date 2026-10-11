@@ -179,7 +179,11 @@ searchInput.addEventListener("keydown", function(event) {
 
     cards.forEach(function(card) { card.classList.remove("start-target"); });
     nextLesson.classList.add("start-target");
+    const lessonDetails = nextLesson.querySelector("details");
+    if (lessonDetails) lessonDetails.open = true;
     nextLesson.scrollIntoView({ behavior: "smooth", block: "start" });
+    const lessonSummary = lessonDetails && lessonDetails.querySelector("summary");
+    if (lessonSummary) lessonSummary.focus({ preventScroll: true });
     window.setTimeout(function() { nextLesson.classList.remove("start-target"); }, 2200);
   });
 })();
