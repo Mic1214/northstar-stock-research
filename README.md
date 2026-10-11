@@ -4,10 +4,10 @@ Northstar is a beginner-friendly stock research and learning website, developed 
 
 ## Current stage
 - Responsive dark-mode interface with six sections
-- Learning Center with 18 beginner lessons, source links, search, topic filters, and progress marks stored locally in the browser
+- Learning Center with 18 beginner lessons, source links, search, topic filters, progress marks stored locally in the browser, and a Start lessons button that jumps to the next unfinished lesson
 - Accessible navigation and mobile-friendly layouts
 - No live market data connected yet; the prototype does not fabricate prices, headlines, returns, company examples, or scores
-- Company listings, ticker examples, live prices, and market headlines are intentionally withheld until the owner approves finishing the small interface refinements
+- Live prices, company listings, and market headlines are intentionally withheld until the owner approves finishing the small interface refinements; an example ticker appears only as placeholder text in the unconnected search field
 
 ## Run locally
 Open `index.html` in a modern browser. No build step or API key is required.
