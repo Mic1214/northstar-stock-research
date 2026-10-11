@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="Northstar is a learning-first stock research workspace.">
+  <title>Northstar — Stock Research</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">N</div><div><strong>Northstar</strong><span>STOCK RESEARCH</span></div></div>
+      <nav class="nav" aria-label="Main navigation">
+        <button class="nav-item active" data-page="overview"><span>◫</span> Market Overview</button>
+        <button class="nav-item" data-page="research"><span>⌕</span> Stock Research</button>
+        <button class="nav-item" data-page="analysis"><span>▤</span> Analysis Lab</button>
+        <button class="nav-item" data-page="learning"><span>▧</span> Learning Center</button>
+        <button class="nav-item" data-page="portfolio"><span>◉</span> Portfolio</button>
+        <button class="nav-item" data-page="reports"><span>▥</span> Daily Report</button>
+      </nav>
+      <div class="sidebar-bottom"><div class="status-dot"></div><div><strong>Research workspace</strong><span>Starter version · no live data</span></div></div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="mobile-brand"><div class="brand-mark">N</div><strong>Northstar</strong></div>
+        <div class="breadcrumb">Workspace <span>/</span> <strong id="crumb">Market Overview</strong></div>
+        <div class="topbar-right"><span class="pill"><i></i> Learning mode</span></div>
+      </header>
+      <section class="page active" id="page-overview">
+        <div class="page-heading"><div><p class="eyebrow">YOUR RESEARCH DESK</p><h1>Market Overview</h1><p class="subheading">A clear place to understand markets before making decisions.</p></div><div class="date-chip" id="today"></div></div>
+        <div class="notice"><span class="notice-icon">i</span><div><strong>Live market data is not connected yet.</strong><p>This starter intentionally shows no made-up prices, charts, or headlines. We’ll add a verified data source in a later stage.</p></div></div>
+        <div class="stats-grid">
+          <article class="panel stat-card"><div class="card-label">Market status</div><div class="stat-value">Not connected</div><div class="muted">No live feed configured</div></article>
+          <article class="panel stat-card"><div class="card-label">Watchlist</div><div class="stat-value">0 companies</div><div class="muted">Add companies during a later stage</div></article>
+          <article class="panel stat-card"><div class="card-label">Portfolio</div><div class="stat-value">Not set up</div><div class="muted">No holdings have been entered</div></article>
+        </div>
+        <div class="section-heading"><div><h2>Start with the essentials</h2><p class="muted">Choose an area to explore. Features will be built and tested one at a time.</p></div></div>
+        <div class="feature-grid">
+          <button class="feature-card" data-goto="research"><span class="feature-icon blue">⌕</span><strong>Research a company</strong><p>Look up a company and review its business, financials, and risks.</p><span class="feature-link">Open Stock Research →</span></button>
+          <button class="feature-card" data-goto="analysis"><span class="feature-icon purple">▤</span><strong>Evaluate the evidence</strong><p>Use a transparent checklist instead of relying on a mysterious score.</p><span class="feature-link">Open Analysis Lab →</span></button>
+          <button class="feature-card" data-goto="learning"><span class="feature-icon teal">▧</span><strong>Learn the language</strong><p>Understand financial terms before using them to compare companies.</p><span class="feature-link">Open Learning Center →</span></button>
+        </div>
+      </section>
+      <section class="page" id="page-research">
+        <div class="page-heading"><div><p class="eyebrow">COMPANY INVESTIGATION</p><h1>Stock Research</h1><p class="subheading">Start with a ticker or company name. No search is sent anywhere in this starter.</p></div></div>
+        <div class="panel search-panel">
+          <label for="company-search">Company name or ticker</label>
+          <div class="search-row"><input id="company-search" placeholder="Example: MSFT or Microsoft" autocomplete="off"><button id="search-button" class="primary-button">Prepare search</button></div>
+          <p class="muted small">This is a user-interface prototype. It does not yet fetch prices or company data.</p>
+          <div id="search-result" class="result-box" hidden aria-live="polite"></div>
+        </div>
+        <div class="two-column">
+          <article class="panel"><h2>What good research checks</h2><ul class="check-list"><li>How the company makes money</li><li>Revenue and profit trends</li><li>Debt and cash flow</li><li>Valuation compared with results</li><li>Competition, management, and risks</li></ul></article>
+          <article class="panel"><h2>Evidence rules</h2><p class="muted">Every factual claim should eventually link to its source and show when the information was checked. Estimates and possible explanations must be labeled separately from confirmed facts.</p><div class="tag-row"><span class="tag">Source links</span><span class="tag">Dates</span><span class="tag">Uncertainty</span></div></article>
+        </div>
+      </section>
+      <section class="page" id="page-analysis">
+        <div class="page-heading"><div><p class="eyebrow">STRUCTURED THINKING</p><h1>Analysis Lab</h1><p class="subheading">A framework for asking better questions, not predicting the future.</p></div></div>
+        <div class="notice"><span class="notice-icon">i</span><div><strong>No company scores are calculated yet.</strong><p>We’ll only add a score after the underlying metrics, sources, weights, and limitations are clearly defined.</p></div></div>
+        <div class="panel"><h2>Research checklist preview</h2><p class="muted">Use this as a question list. Nothing is scored or saved in this starter.</p><div class="checklist-preview">
+          <div><span>01</span><strong>Business quality</strong><p>Can I explain how this company earns money?</p></div>
+          <div><span>02</span><strong>Financial health</strong><p>Are revenue, profit, cash flow, and debt understandable?</p></div>
+          <div><span>03</span><strong>Price and valuation</strong><p>What assumptions are built into the current price?</p></div>
+          <div><span>04</span><strong>Risks and alternatives</strong><p>What could go wrong, and what evidence could change my view?</p></div>
+        </div></div>
+      </section>
+      <section class="page" id="page-learning">
+        <div class="page-heading"><div><p class="eyebrow">BUILD YOUR KNOWLEDGE</p><h1>Learning Center</h1><p class="subheading">Short explanations of concepts used in stock research.</p></div></div>
+        <div class="lesson-grid">
+          <article class="panel lesson"><span class="lesson-number">01 / BASICS</span><h2>Stock</h2><p>A stock represents an ownership share in a company. Owning a share does not guarantee a profit; its market price can rise or fall.</p><details><summary>Question to remember</summary><p>What part of the business do I own, and what could make that ownership more or less valuable?</p></details></article>
+          <article class="panel lesson"><span class="lesson-number">02 / FINANCIALS</span><h2>Revenue vs. profit</h2><p><strong>Revenue</strong> is money earned from selling goods or services before expenses. <strong>Profit</strong> is what remains after the relevant expenses are deducted.</p><details><summary>Question to remember</summary><p>Is the company growing sales while also managing its costs?</p></details></article>
+          <article class="panel lesson"><span class="lesson-number">03 / VALUATION</span><h2>P/E ratio</h2><p>The price-to-earnings ratio compares a share price with earnings per share. It can help compare valuations, but it is less useful when earnings are negative or unusually high or low.</p><details><summary>Question to remember</summary><p>What growth and risk expectations might explain this valuation?</p></details></article>
+          <article class="panel lesson"><span class="lesson-number">04 / RISK</span><h2>Diversification</h2><p>Diversification means spreading investments across different holdings so the result depends less on any single one. It can reduce some risks, but it cannot eliminate market risk.</p><details><summary>Question to remember</summary><p>Do my holdings depend on the same industry, event, or economic factor?</p></details></article>
+        </div>
+        <p class="source-note">For formal financial definitions and deeper study, use reputable educational sources and primary documents. Source links will be added as the research features are built.</p>
+      </section>
+      <section class="page" id="page-portfolio">
+        <div class="page-heading"><div><p class="eyebrow">PERSONAL TRACKING</p><h1>Portfolio</h1><p class="subheading">A future space for practice holdings and separate retirement accounts.</p></div></div>
+        <div class="panel empty-state"><div class="empty-icon">◉</div><h2>Portfolio tracking isn't set up yet</h2><p class="muted">No holdings, balances, returns, or dividends are being invented or displayed. Later, we can add manual entry and keep contributions separate from investment performance.</p></div>
+      </section>
+      <section class="page" id="page-reports">
+        <div class="page-heading"><div><p class="eyebrow">A ROUTINE FOR LEARNING</p><h1>Daily Report</h1><p class="subheading">A concise briefing with evidence, context, and one learning takeaway.</p></div></div>
+        <div class="panel empty-state"><div class="empty-icon">▥</div><h2>Automated reports aren't active yet</h2><p class="muted">A useful report needs reliable data sources and, for automatic delivery, a scheduled process. This starter does not fetch news or send notifications.</p><div class="report-outline"><span>01&nbsp; Market changes and context</span><span>02&nbsp; Verified news with links</span><span>03&nbsp; Portfolio changes, when configured</span><span>04&nbsp; One concept to learn</span></div></div>
+      </section>
+      <footer><span>Northstar · Educational research workspace</span><span>Not investment advice · Verify information before relying on it</span></footer>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
