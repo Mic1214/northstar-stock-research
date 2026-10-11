@@ -33,3 +33,7 @@ footer{border-top:1px solid var(--line);padding:16px 0 20px;display:flex;justify
 .lesson-complete{min-height:30px}
 @media(max-width:1050px){.progress-actions{flex-wrap:wrap}.start-lessons-button{min-height:37px}}
 @media(max-width:760px){.progress-actions{width:100%;align-items:flex-start;flex-direction:column;gap:10px}.start-lessons-button{width:100%}}
+
+/* Helpful feedback when lesson search or topic filters have no matches */
+.lesson-empty-state{margin:0 0 16px;padding:18px 20px;border:1px dashed #354967;border-radius:10px;background:#0d1525;color:#b8c7dc;font-size:12px;line-height:1.6}
+.lesson-empty-state[hidden]{display:none}
