@@ -39,9 +39,38 @@ footer{border-top:1px solid var(--line);padding:16px 0 20px;display:flex;justify
 .lesson-empty-state[hidden]{display:none}
 
 
-/* Individual lesson start action */
-.lesson-start-button{flex-shrink:0;border:1px solid #7aa7ff;border-radius:7px;padding:8px 11px;background:#8bb3ff;color:#091326;font:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
-.lesson-start-button:hover{background:#a4c4ff;border-color:#a4c4ff;transform:translateY(-1px)}
-.lesson-start-button:focus-visible{outline:2px solid #d5e4ff;outline-offset:3px}
+/* Individual lesson start action — larger, tactile capsule button */
+.lesson-start-button{
+  flex-shrink:0;
+  min-height:44px;
+  padding:11px 20px;
+  border:1px solid rgba(183,207,255,.9);
+  border-radius:999px;
+  background:linear-gradient(180deg,#b4ceff 0%,#8bb3ff 100%);
+  color:#091326;
+  font:inherit;
+  font-size:12px;
+  font-weight:750;
+  letter-spacing:.1px;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(82,136,235,.22),inset 0 1px 0 rgba(255,255,255,.78);
+  transition:background .18s,border-color .18s,box-shadow .18s,transform .18s;
+}
+.lesson-start-button:hover{
+  background:linear-gradient(180deg,#c7d9ff 0%,#a2c2ff 100%);
+  border-color:#d7e4ff;
+  box-shadow:0 7px 17px rgba(82,136,235,.3),inset 0 1px 0 rgba(255,255,255,.9);
+  transform:translateY(-2px);
+}
+.lesson-start-button:active{
+  background:linear-gradient(180deg,#8bb3ff 0%,#a8c6ff 100%);
+  box-shadow:0 2px 6px rgba(82,136,235,.2),inset 0 1px 2px rgba(29,60,115,.16);
+  transform:translateY(0) scale(.97);
+}
+.lesson-start-button:focus-visible{outline:2px solid #d5e4ff;outline-offset:4px}
 .lesson-footer{flex-wrap:wrap}
-@media(max-width:420px){.lesson-footer{align-items:stretch}.lesson-start-button,.lesson-complete{flex:1}}
+@media(max-width:420px){
+  .lesson-footer{align-items:stretch}
+  .lesson-start-button,.lesson-complete{flex:1}
+}
+@media(prefers-reduced-motion:reduce){.lesson-start-button{transition:none}}
