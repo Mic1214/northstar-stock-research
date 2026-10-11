@@ -40,7 +40,7 @@
         <div class="feature-grid">
           <button class="feature-card" data-goto="research"><span class="feature-icon blue">⌕</span><strong>Research a company</strong><p>Look up a company and review its business, financials, and risks.</p><span class="feature-link">Open Stock Research →</span></button>
           <button class="feature-card" data-goto="analysis"><span class="feature-icon purple">▤</span><strong>Evaluate the evidence</strong><p>Use a transparent checklist instead of relying on a mysterious score.</p><span class="feature-link">Open Analysis Lab →</span></button>
-          <button class="feature-card" data-goto="learning"><span class="feature-icon teal">▧</span><strong>Learn the language</strong><p>Understand financial terms before using them to compare companies.</p><span class="feature-link">Open Learning Center →</span></button>
+          <button class="feature-card learning-feature-card" data-goto="learning"><span class="feature-icon teal">▧</span><strong>Start learning</strong><p>Build your investing knowledge with short, guided lessons and progress tracking.</p><span class="feature-link">Start lessons →</span></button>
         </div>
         <div class="panel build-roadmap">
           <div class="roadmap-heading"><div><h2>Northstar build plan</h2><p class="muted">We are polishing the foundation before adding market data.</p></div><span class="tag">Stage 2 of 4</span></div>
@@ -50,14 +50,14 @@
             <div class="roadmap-step"><span>03</span><div><strong>Verified information sources</strong><small>Waiting for your approval</small></div></div>
             <div class="roadmap-step"><span>04</span><div><strong>Research and portfolio tools</strong><small>Later stage</small></div></div>
           </div>
-          <p class="roadmap-note">No company listings, tickers, live prices, or market headlines have been added. We will leave them out until you say the small changes are finished.</p>
+          <p class="roadmap-note">No live prices, company listings, or market headlines have been added. We will leave those out until you say the small changes are finished.</p>
         </div>
       </section>
       <section class="page" id="page-research">
         <div class="page-heading"><div><p class="eyebrow">COMPANY INVESTIGATION</p><h1>Stock Research</h1><p class="subheading">Start with a ticker or company name. No search is sent anywhere in this starter.</p></div></div>
         <div class="panel search-panel">
           <label for="company-search">Company name or ticker</label>
-          <div class="search-row"><input id="company-search" placeholder="Search is not connected yet" autocomplete="off"><button id="search-button" class="primary-button">Prepare search</button></div>
+          <div class="search-row"><input id="company-search" placeholder="Example: MSFT or Microsoft" autocomplete="off"><button id="search-button" class="primary-button">Prepare search</button></div>
           <p class="muted small">This is a user-interface prototype. It does not yet fetch prices or company data.</p>
           <div id="search-result" class="result-box" hidden aria-live="polite"></div>
         </div>
@@ -79,7 +79,7 @@
       <section class="page" id="page-learning">
         <div class="page-heading"><div><p class="eyebrow">BUILD YOUR KNOWLEDGE</p><h1>Learning Center</h1><p class="subheading">Short, source-linked lessons. Learn the concepts before using them to evaluate evidence.</p></div></div>
         <div class="panel learning-progress">
-          <div class="progress-topline"><div><span class="eyebrow">YOUR LEARNING PATH</span><h2>Progress at your own pace</h2><p class="muted">Your completion marks stay in this browser on this device.</p></div><strong id="learning-progress-text" aria-live="polite">0 of 18 lessons completed</strong></div>
+          <div class="progress-topline"><div><span class="eyebrow">YOUR LEARNING PATH</span><h2>Progress at your own pace</h2><p class="muted">Your completion marks stay in this browser on this device.</p></div><div class="progress-actions"><strong id="learning-progress-text" aria-live="polite">0 of 18 lessons completed</strong><button type="button" class="primary-button start-lessons-button" id="start-lessons-button">Start lessons <span aria-hidden="true">→</span></button></div></div>
           <div class="progress-track" role="progressbar" aria-label="Learning progress" aria-valuemin="0" aria-valuemax="18" aria-valuenow="0" id="learning-progressbar"><div class="progress-fill" id="learning-progress-fill"></div></div>
         </div>
         <div class="learning-tools">
