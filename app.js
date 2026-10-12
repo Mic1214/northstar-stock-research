@@ -204,7 +204,7 @@ searchInput.addEventListener("keydown", function(event) {
 
 /* Persistent interface color theme; market gain/loss colors remain semantic. */
 (function setupColorThemes() {
-  const validThemes = new Set(["blue", "purple", "indigo", "cyan"]);
+  const validThemes = new Set(["blue", "purple", "indigo", "cyan", "glacier", "violet"]);
   const storageKey = "meridian-color-theme-v1";
   const themeButtons = Array.from(document.querySelectorAll("[data-theme-choice]"));
 
