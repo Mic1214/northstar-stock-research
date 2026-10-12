@@ -231,3 +231,6 @@ footer{margin-top:auto;border-top-color:color-mix(in srgb,var(--line) 80%,var(--
 .edgar-search-link:focus-visible{outline:2px solid var(--theme-icon-light);outline-offset:3px}
 .edgar-disclaimer{margin:12px 0 0;color:var(--muted);font-size:11px;line-height:1.6}
 @media(prefers-reduced-motion:reduce){.edgar-search-link{transition:none}}
+
+.api-setup-link{display:inline-block;margin-top:10px;color:var(--theme-accent);font-size:12px;text-decoration:none}
+.api-setup-link:hover{text-decoration:underline}
