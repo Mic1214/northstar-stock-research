@@ -44,7 +44,7 @@ function rateLimited(request) {
   return false;
 }
 
-async function secJson(url, env) {
+async function secResponse(url, env) {
   const userAgent = (env.SEC_USER_AGENT || "").trim();
   if (!userAgent || !/^\S+\s+\([^)]*@[^)]*\)$/.test(userAgent)) {
     throw new Error("The SEC_USER_AGENT setting is missing or incomplete. Set it to the app name followed by a contact email in parentheses.");
@@ -61,6 +61,11 @@ async function secJson(url, env) {
     error.status = 502;
     throw error;
   }
+  return response;
+}
+
+async function secJson(url, env) {
+  const response = await secResponse(url, env);
   return response.json();
 }
 
@@ -100,55 +105,6 @@ function chooseCompany(query, rows) {
   return { error: "No SEC-listed company matched that search. Check the spelling or try its ticker." };
 }
 
-function latestAnnualFact(usGaap, tags, instant = false) {
-  for (const tag of tags) {
-    const fact = usGaap[tag];
-    if (!fact || !fact.units || !fact.units.USD) continue;
-    const rows = fact.units.USD.filter(item => {
-      if (!ANNUAL_FORMS.has(item.form)) return false;
-      if (!item.end || (item.fp && item.fp !== "FY")) return false;
-      if (instant) return !item.start;
-      if (!item.start) return false;
-      const duration = (Date.parse(item.end) - Date.parse(item.start)) / 86_400_000;
-      return duration >= 300 && duration <= 400;
-    }).sort((a, b) =>
-      String(b.end).localeCompare(String(a.end)) ||
-      String(b.filed || "").localeCompare(String(a.filed || ""))
-    );
-    if (rows.length) {
-      const row = rows[0];
-      return {
-        value: row.val,
-        periodEnd: row.end,
-        filed: row.filed || null,
-        form: row.form,
-        fiscalYear: row.fy || null,
-        tag
-      };
-    }
-  }
-  return null;
-}
-
-function buildFinancials(companyFacts) {
-  const gaap = companyFacts.facts && companyFacts.facts["us-gaap"];
-  if (!gaap) return [];
-  const definitions = [
-    { key: "revenue", label: "Revenue", tags: ["RevenueFromContractWithCustomerExcludingAssessedTax", "SalesRevenueNet", "Revenues", "RevenueFromContractWithCustomerIncludingAssessedTax", "SalesRevenueGoodsNet"] },
-    { key: "netIncome", label: "Net income", tags: ["NetIncomeLoss", "ProfitLoss"] },
-    { key: "operatingCashFlow", label: "Operating cash flow", tags: ["NetCashProvidedByUsedInOperatingActivities"] },
-    { key: "assets", label: "Total assets", instant: true, tags: ["Assets"] },
-    { key: "liabilities", label: "Total liabilities", instant: true, tags: ["Liabilities"] },
-    { key: "cash", label: "Cash and equivalents", instant: true, tags: ["CashAndCashEquivalentsAtCarryingValue", "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents", "CashCashEquivalentsAndShortTermInvestments"] },
-    { key: "equity", label: "Stockholders' equity", instant: true, tags: ["StockholdersEquity", "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"] }
-  ];
-  return definitions.map(def => ({
-    key: def.key,
-    label: def.label,
-    ...latestAnnualFact(gaap, def.tags, Boolean(def.instant))
-  }));
-}
-
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -184,7 +140,7 @@ export default {
       }, 200, origin, allowed);
     }
 
-    if (url.pathname !== "/api/company") {
+    if (!["/api/company", "/api/facts"].includes(url.pathname)) {
       return json({ ok: false, error: "Endpoint not found. Use /api/health or /api/company?query=MSFT." }, 404, origin, allowed);
     }
 
@@ -197,6 +153,36 @@ export default {
         ok: false,
         error: "The SEC data bridge has not been configured yet. Add SEC_USER_AGENT to the Worker settings."
       }, 503, origin, allowed);
+    }
+
+    if (url.pathname === "/api/facts") {
+      const cik = (url.searchParams.get("cik") || "").trim();
+      if (!/^\d{10}$/.test(cik)) {
+        return json({ ok: false, error: "CIK must contain exactly 10 digits." }, 400, origin, allowed);
+      }
+      try {
+        const upstream = await secResponse("https://data.sec.gov/api/xbrl/companyfacts/CIK" + cik + ".json", env);
+        const headers = new Headers({
+          "Content-Type": "application/json; charset=utf-8",
+          "Cache-Control": "no-store",
+          "Vary": "Origin",
+          "X-Content-Type-Options": "nosniff"
+        });
+        if (origin && allowed) {
+          headers.set("Access-Control-Allow-Origin", origin);
+          headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+          headers.set("Access-Control-Allow-Headers", "Content-Type");
+        }
+        return new Response(upstream.body, { status: 200, headers });
+      } catch (error) {
+        const status = Number.isInteger(error.status) ? error.status : 502;
+        return json({
+          ok: false,
+          error: status === 502 && !error.status
+            ? "Could not retrieve SEC facts right now. Please try again later."
+            : error.message
+        }, status, origin, allowed);
+      }
     }
 
     const query = (url.searchParams.get("query") || "").trim();
@@ -216,19 +202,15 @@ export default {
       const selected = selection.company;
       const cik = String(selected.cik_str).padStart(10, "0");
       const factsUrl = "https://data.sec.gov/api/xbrl/companyfacts/CIK" + cik + ".json";
-      const facts = await secJson(factsUrl, env);
       const filingUrl = "https://www.sec.gov/edgar/browse/?CIK=" + cik + "&owner=exclude";
-      const financials = buildFinancials(facts);
 
       return json({
         ok: true,
         company: {
           name: selected.title,
           ticker: selected.ticker,
-          cik,
-          entityName: facts.entityName || selected.title
+          cik
         },
-        financials,
         checkedAt: new Date().toISOString(),
         sources: {
           filings: filingUrl,
