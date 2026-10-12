@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b1020">
   <meta name="description" content="Meridian is a learning-first financial research workspace.">
   <title>Meridian — Financial Research</title>
-  <link rel="stylesheet" href="styles.css?v=20261011-09">
+  <link rel="stylesheet" href="styles.css?v=20261011-10">
 </head>
 <body>
   <svg class="svg-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><defs>
@@ -70,15 +70,15 @@
             <div class="roadmap-step"><span>03</span><div><strong>Verified information sources</strong><small>Waiting for your approval</small></div></div>
             <div class="roadmap-step"><span>04</span><div><strong>Research and portfolio tools</strong><small>Later stage</small></div></div>
           </div>
-          <p class="roadmap-note">No live prices, company listings, or market headlines have been added. We will leave those out until you say the small changes are finished.</p>
+          <p class="roadmap-note">Research upgrades are beginning with official SEC filings and annual financial facts. Market prices and news remain off until a properly licensed source is configured.</p>
         </div>
       </section>
       <section class="page" id="page-research">
-        <div class="page-heading"><div><p class="eyebrow">COMPANY INVESTIGATION</p><h1>Stock Research</h1><p class="subheading">Search by ticker or company name, then open its official SEC filings.</p></div></div>
+        <div class="page-heading"><div><p class="eyebrow">COMPANY INVESTIGATION</p><h1>Stock Research</h1><p class="subheading">Search by ticker or company name to view annual SEC-reported financial facts and original filings.</p></div></div>
         <div class="panel search-panel">
           <label for="company-search">Company name or ticker</label>
           <div class="search-row"><input id="company-search" placeholder="Example: MSFT or Microsoft" autocomplete="off"><button id="search-button" class="primary-button">Prepare search</button></div>
-          <p class="muted small">First source connected: official SEC filing search. Market prices and financial figures are not imported into Meridian yet.</p>
+          <p class="muted small">Primary source: SEC EDGAR company filings and XBRL company facts. This screen shows annual reported figures only when the optional SEC bridge is connected; stock prices are not included.</p>
           <div id="search-result" class="result-box" hidden aria-live="polite"></div>
         </div>
         <div class="two-column">
@@ -259,6 +259,12 @@
       </section>
       <section class="page" id="page-settings">
         <div class="page-heading"><div><p class="eyebrow">PERSONALIZE MERIDIAN</p><h1>Settings</h1><p class="subheading">Choose the accent palette for your research workspace.</p></div></div>
+        <div class="panel api-settings-panel">
+          <div class="theme-settings-heading"><div><h2>SEC data connection</h2><p class="muted">Connect Meridian to its small SEC bridge once. The address is saved only in this browser; no market-data API key is needed.</p></div><span class="tag">Research data</span></div>
+          <label for="sec-api-url">SEC bridge base URL</label>
+          <div class="search-row api-settings-row"><input id="sec-api-url" type="url" inputmode="url" placeholder="https://your-worker.your-account.workers.dev" autocomplete="url"><button type="button" id="sec-api-save" class="primary-button">Save &amp; test connection</button></div>
+          <div class="api-settings-actions"><button type="button" id="sec-api-clear" class="secondary-button">Remove connection</button><p id="sec-api-status" class="muted small" role="status" aria-live="polite">Not connected. The one-time deployment steps are in SEC_DATA_SETUP.md in the project repository.</p></div>
+        </div>
         <div class="panel theme-settings-panel">
           <div class="theme-settings-heading"><div><h2>Color theme</h2><p class="muted">Your choice is saved in this browser and stays selected when you return.</p></div><span class="tag">Appearance</span></div>
           <div class="theme-options" role="group" aria-label="Choose color theme">
@@ -276,6 +282,6 @@
       <footer><span>Meridian · Educational research workspace</span><span>Not investment advice · Verify information before relying on it</span></footer>
     </main>
   </div>
-  <script src="app.js"></script>
+  <script src="app.js?v=20261011-10"></script>
 </body>
 </html>
