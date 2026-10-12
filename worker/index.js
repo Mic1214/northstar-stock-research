@@ -130,7 +130,7 @@ export default {
     }
     if (!allowed) return json({ ok: false, error: "Origin not allowed." }, 403);
 
-    if (url.pathname === "/api/health") {
+    if (url.pathname === "/" || url.pathname === "/api/health") {
       const configured = /^\S+\s+\([^)]*@[^)]*\)$/.test((env.SEC_USER_AGENT || "").trim());
       return json({
         ok: true,
