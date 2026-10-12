@@ -42,11 +42,29 @@ const searchResult = document.getElementById("search-result");
 function showSearchNotice() {
   const query = searchInput.value.trim();
   searchResult.hidden = false;
+  searchResult.replaceChildren();
+
   if (!query) {
     searchResult.textContent = "Enter a company name or ticker to prepare a research request.";
     return;
   }
-  searchResult.textContent = "“" + query + "” is noted for the next development stage. This starter does not contact a data provider or retrieve financial information yet.";
+
+  const message = document.createElement("p");
+  message.className = "edgar-result-note";
+  message.textContent = "Search the official SEC filing database for “" + query + "”.";
+
+  const link = document.createElement("a");
+  link.className = "edgar-search-link";
+  link.href = "https://www.sec.gov/edgar/search/?q=" + encodeURIComponent(query);
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.textContent = "Search SEC EDGAR ↗";
+
+  const note = document.createElement("p");
+  note.className = "edgar-disclaimer";
+  note.textContent = "This opens original filings in a new tab. Meridian has not imported market prices or financial statements into this screen yet.";
+
+  searchResult.append(message, link, note);
 }
 searchButton.addEventListener("click", showSearchNotice);
 searchInput.addEventListener("keydown", function(event) {
