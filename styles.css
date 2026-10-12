@@ -198,3 +198,12 @@ footer{margin-top:auto;border-top-color:color-mix(in srgb,var(--line) 80%,var(--
 @media(max-width:760px){.app-shell{display:block;padding:10px}.sidebar{position:relative;top:auto;height:auto;min-height:0;overflow:visible;border-radius:20px;padding:10px;margin-bottom:12px}.nav{gap:6px}.nav-item{min-height:44px;border-radius:14px;padding:5px 8px}.nav-item .nav-icon{flex-basis:34px;width:34px;height:34px;border-radius:12px}.nav-item .nav-icon svg{width:25px;height:25px}.main{padding:0 3px}.topbar{position:sticky;top:10px;height:58px;border-radius:17px;padding:0 13px;margin-bottom:2px}.page{padding:20px 0 30px}.page h1{font-size:25px}.page-heading{margin-bottom:18px}.panel{padding:18px;border-radius:20px}.feature-card{min-height:0;padding:19px;border-radius:21px}.theme-options{grid-template-columns:1fr;gap:10px}.theme-choice{padding:13px}.roadmap-steps{grid-template-columns:1fr 1fr}.roadmap-step{padding:11px 9px;min-height:68px}footer{padding-bottom:15px}}
 @media(max-width:420px){.stats-grid{gap:11px}.panel{padding:16px}.feature-icon{margin-bottom:13px}.roadmap-steps{grid-template-columns:1fr}.theme-choice-copy small{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.nav-item,.feature-card,.primary-button,.lesson-complete,.filter-chip,.theme-choice{transition:none!important}}
+
+
+/* Primary-source SEC filing search link */
+.edgar-result-note{margin:0 0 12px;color:var(--text);font-size:13px;line-height:1.6}
+.edgar-search-link{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:9px 15px;border:1px solid var(--theme-accent-border);border-radius:999px;background:linear-gradient(135deg,var(--theme-accent-soft),color-mix(in srgb,var(--theme-accent-soft) 75%,var(--panel) 25%));color:var(--theme-icon-light);font-size:12px;font-weight:750;text-decoration:none;box-shadow:0 4px 12px var(--theme-accent-glow);transition:transform .16s,border-color .16s,box-shadow .16s}
+.edgar-search-link:hover{transform:translateY(-1px);border-color:var(--theme-accent);box-shadow:0 7px 17px var(--theme-accent-glow)}
+.edgar-search-link:focus-visible{outline:2px solid var(--theme-icon-light);outline-offset:3px}
+.edgar-disclaimer{margin:12px 0 0;color:var(--muted);font-size:11px;line-height:1.6}
+@media(prefers-reduced-motion:reduce){.edgar-search-link{transition:none}}
