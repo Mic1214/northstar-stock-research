@@ -43,7 +43,7 @@ const secApiStorageKey = "meridian-sec-api-base-url-v1";
 
 function getSecApiBase() {
   try {
-    return (window.localStorage.getItem(secApiStorageKey) || "").trim().replace(/\\/+$/, "");
+    return (window.localStorage.getItem(secApiStorageKey) || "").trim().replace(/\/+$/, "");
   } catch (error) {
     return "";
   }
@@ -415,7 +415,7 @@ searchInput.addEventListener("keydown", function(event) {
   }
 
   saveButton.addEventListener("click", async function() {
-    const raw = input.value.trim().replace(/\\/+$/, "");
+    const raw = input.value.trim().replace(/\/+$/, "");
     let parsed;
     try {
       parsed = new URL(raw);
