@@ -46,7 +46,7 @@ function rateLimited(request) {
 
 async function secJson(url, env) {
   const userAgent = (env.SEC_USER_AGENT || "").trim();
-  if (!userAgent || !/\S+\s+\([^)]*\)/.test(userAgent)) {
+  if (!userAgent || !/^\S+\s+\([^)]*@[^)]*\)$/.test(userAgent)) {
     throw new Error("The SEC_USER_AGENT setting is missing or incomplete. Set it to the app name followed by a contact email in parentheses.");
   }
   const response = await fetch(url, {
@@ -175,7 +175,7 @@ export default {
     if (!allowed) return json({ ok: false, error: "Origin not allowed." }, 403);
 
     if (url.pathname === "/api/health") {
-      const configured = Boolean((env.SEC_USER_AGENT || "").trim());
+      const configured = /^\S+\s+\([^)]*@[^)]*\)$/.test((env.SEC_USER_AGENT || "").trim());
       return json({
         ok: true,
         service: "Meridian SEC research bridge",
@@ -226,7 +226,7 @@ export default {
           name: selected.title,
           ticker: selected.ticker,
           cik,
-          sicDescription: facts.entityName || selected.title
+          entityName: facts.entityName || selected.title
         },
         financials,
         checkedAt: new Date().toISOString(),
