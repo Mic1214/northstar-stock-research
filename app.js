@@ -112,6 +112,57 @@ function formatSecDate(value) {
   });
 }
 
+function latestBrowserAnnualFact(usGaap, tags, instant) {
+  for (const tag of tags) {
+    const fact = usGaap[tag];
+    if (!fact || !fact.units || !fact.units.USD) continue;
+    const rows = fact.units.USD.filter(function(item) {
+      if (!["10-K", "20-F", "40-F"].includes(item.form)) return false;
+      if (!item.end || (item.fp && item.fp !== "FY")) return false;
+      if (instant) return !item.start;
+      if (!item.start) return false;
+      const duration = (Date.parse(item.end) - Date.parse(item.start)) / 86400000;
+      return duration >= 300 && duration <= 400;
+    }).sort(function(a, b) {
+      return String(b.end).localeCompare(String(a.end)) ||
+        String(b.filed || "").localeCompare(String(a.filed || ""));
+    });
+    if (rows.length) {
+      const row = rows[0];
+      return {
+        value: row.val,
+        periodEnd: row.end,
+        filed: row.filed || null,
+        form: row.form,
+        fiscalYear: row.fy || null,
+        tag: tag
+      };
+    }
+  }
+  return null;
+}
+
+function buildBrowserFinancials(companyFacts) {
+  const gaap = companyFacts.facts && companyFacts.facts["us-gaap"];
+  if (!gaap) return [];
+  const definitions = [
+    { key: "revenue", label: "Revenue", tags: ["RevenueFromContractWithCustomerExcludingAssessedTax", "SalesRevenueNet", "Revenues", "RevenueFromContractWithCustomerIncludingAssessedTax", "SalesRevenueGoodsNet"] },
+    { key: "netIncome", label: "Net income", tags: ["NetIncomeLoss", "ProfitLoss"] },
+    { key: "operatingCashFlow", label: "Operating cash flow", tags: ["NetCashProvidedByUsedInOperatingActivities"] },
+    { key: "assets", label: "Total assets", instant: true, tags: ["Assets"] },
+    { key: "liabilities", label: "Total liabilities", instant: true, tags: ["Liabilities"] },
+    { key: "cash", label: "Cash and equivalents", instant: true, tags: ["CashAndCashEquivalentsAtCarryingValue", "CashCashEquivalentsRestrictedCashAndRestrictedCashEquivalents", "CashCashEquivalentsAndShortTermInvestments"] },
+    { key: "equity", label: "Stockholders' equity", instant: true, tags: ["StockholdersEquity", "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"] }
+  ];
+  return definitions.map(function(definition) {
+    return {
+      key: definition.key,
+      label: definition.label,
+      ...latestBrowserAnnualFact(gaap, definition.tags, Boolean(definition.instant))
+    };
+  });
+}
+
 function renderCompanyData(data) {
   searchResult.hidden = false;
   searchResult.replaceChildren();
@@ -196,7 +247,19 @@ async function showSearchNotice() {
       headers: { "Accept": "application/json" }
     });
     const payload = await response.json();
-    if (response.ok && payload.ok && payload.company && Array.isArray(payload.financials)) {
+    if (response.ok && payload.ok && payload.company && payload.sources && payload.sources.companyFacts) {
+      const factsResponse = await fetch(apiBase + "/api/facts?cik=" + encodeURIComponent(payload.company.cik), {
+        headers: { "Accept": "application/json" }
+      });
+      if (!factsResponse.ok) {
+        let factsError = {};
+        try { factsError = await factsResponse.json(); } catch (error) {}
+        renderEdgarFallback(query, factsError.error || "The SEC facts endpoint could not return this company's data.");
+        return;
+      }
+      const companyFacts = await factsResponse.json();
+      payload.financials = buildBrowserFinancials(companyFacts);
+      payload.checkedAt = new Date().toISOString();
       renderCompanyData(payload);
     } else {
       renderEdgarFallback(query, payload.error || "The SEC bridge did not return company data.", payload.matches);
