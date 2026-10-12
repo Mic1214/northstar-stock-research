@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b1020">
   <meta name="description" content="Meridian is a learning-first financial research workspace.">
   <title>Meridian — Financial Research</title>
-  <link rel="stylesheet" href="styles.css?v=20261011-12">
+  <link rel="stylesheet" href="styles.css?v=20261011-13">
 </head>
 <body>
   <svg class="svg-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><defs>
@@ -258,12 +258,12 @@
         <div class="panel empty-state"><div class="empty-icon"><svg class="page-heading-icon" viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-report"></use></svg></div><h2>Automated reports aren't active yet</h2><p class="muted">A useful report needs reliable data sources and, for automatic delivery, a scheduled process. This starter does not fetch news or send notifications.</p><div class="report-outline"><span>01&nbsp; Market changes and context</span><span>02&nbsp; Verified news with links</span><span>03&nbsp; Portfolio changes, when configured</span><span>04&nbsp; One concept to learn</span></div></div>
       </section>
       <section class="page" id="page-settings">
-        <div class="page-heading"><div><p class="eyebrow">PERSONALIZE MERIDIAN</p><h1>Settings</h1><p class="subheading">Choose the accent palette for your research workspace.</p></div></div>
+        <div class="page-heading"><div><p class="eyebrow">PERSONALIZE MERIDIAN</p><h1>Settings</h1><p class="subheading">Manage data connections and personalize your research workspace.</p></div></div>
         <div class="panel api-settings-panel">
           <div class="theme-settings-heading"><div><h2>SEC data connection</h2><p class="muted">Connect Meridian to its small SEC bridge once. The address is saved only in this browser; no market-data API key is needed.</p></div><span class="tag">Research data</span></div>
           <label for="sec-api-url">SEC bridge base URL</label>
           <div class="search-row api-settings-row"><input id="sec-api-url" type="url" inputmode="url" placeholder="https://your-worker.your-account.workers.dev" autocomplete="url"><button type="button" id="sec-api-save" class="primary-button">Save &amp; test connection</button></div>
-          <div class="api-settings-actions"><button type="button" id="sec-api-clear" class="secondary-button">Remove connection</button><p id="sec-api-status" class="muted small" role="status" aria-live="polite">Not connected. The one-time deployment steps are in SEC_DATA_SETUP.md in the project repository.</p></div>
+          <div class="api-settings-actions"><button type="button" id="sec-api-clear" class="secondary-button">Remove connection</button><p id="sec-api-status" class="muted small" role="status" aria-live="polite">Not connected yet. Official SEC filing links still work without the bridge.</p><a class="api-setup-link" href="https://github.com/Mic1214/northstar-stock-research/blob/main/SEC_DATA_SETUP.md" target="_blank" rel="noopener noreferrer">Open the one-time SEC bridge setup guide ↗</a></div>
         </div>
         <div class="panel theme-settings-panel">
           <div class="theme-settings-heading"><div><h2>Color theme</h2><p class="muted">Your choice is saved in this browser and stays selected when you return.</p></div><span class="tag">Appearance</span></div>
