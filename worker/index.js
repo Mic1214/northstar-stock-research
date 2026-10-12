@@ -130,13 +130,47 @@ export default {
     }
     if (!allowed) return json({ ok: false, error: "Origin not allowed." }, 403);
 
-    if (url.pathname === "/" || url.pathname === "/api/health") {
-      const configured = /^\S+\s+\([^)]*@[^)]*\)$/.test((env.SEC_USER_AGENT || "").trim());
+    const secIdentityConfigured = /^\S+\s+\([^)]*@[^)]*\)$/.test((env.SEC_USER_AGENT || "").trim());
+
+    if (url.pathname === "/") {
+      const statusText = secIdentityConfigured
+        ? "SEC contact setting: configured"
+        : "SEC contact setting: not configured yet";
+      const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meridian SEC Bridge Status</title>
+<style>
+body{font:16px/1.6 system-ui,-apple-system,sans-serif;background:#0b1020;color:#edf2fb;margin:0;padding:32px}
+main{max-width:650px;margin:10vh auto;background:#111a2c;border:1px solid #2b3b59;border-radius:16px;padding:28px}
+h1{font-size:26px;margin:0 0 8px}p{color:#b9c6dc} .status{padding:12px;border:1px solid #34527c;border-radius:10px;background:#17243a}a{color:#9bd8ff}
+</style>
+</head>
+<body><main>
+<h1>Meridian SEC Bridge</h1>
+<p>If you can read this page, the Worker is responding.</p>
+<p class="status">${statusText}</p>
+<p>Next, open <a href="/api/health">/api/health</a> to view the machine-readable connection status.</p>
+<p>This service retrieves public company information from SEC filings. It does not provide stock prices.</p>
+</main></body></html>`;
+      return new Response(html, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "no-store",
+          "X-Content-Type-Options": "nosniff"
+        }
+      });
+    }
+
+    if (url.pathname === "/api/health") {
       return json({
         ok: true,
         service: "Meridian SEC research bridge",
-        configured,
-        message: configured ? "SEC request identity is configured." : "Set SEC_USER_AGENT before requesting data."
+        configured: secIdentityConfigured,
+        message: secIdentityConfigured ? "SEC request identity is configured." : "Set SEC_USER_AGENT before requesting data."
       }, 200, origin, allowed);
     }
 
