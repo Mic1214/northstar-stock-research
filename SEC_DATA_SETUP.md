@@ -25,7 +25,7 @@ Cloudflare's Workers Free plan currently includes up to 100,000 requests per day
 - `GET /api/health` reports whether the SEC request identity is configured.
 - `GET /api/company?query=MSFT` resolves a ticker/company name and returns its CIK and primary-source links.
 - `GET /api/facts?cik=0000320193` streams that company's SEC XBRL company-facts JSON; the browser extracts the supported annual metrics, keeping the Worker lightweight.
-- `ALLOWED_ORIGINS` is preconfigured for this site's GitHub Pages origin and common local development ports.
+- CORS allows browser requests from Meridian to this endpoint. The response contains only public SEC data and has no login credentials or market-data API keys. Keep traffic light and do not share the endpoint as a general-purpose data service.
 
 The Worker contains a lightweight per-edge request guard and caches SEC fetches when supported by Cloudflare. This guard is not a full authentication system, and CORS is not authentication; the data itself is public. Keep this endpoint dedicated to Meridian and monitor its request usage. The Worker does not handle private brokerage data and contains no market-price API key.
 
