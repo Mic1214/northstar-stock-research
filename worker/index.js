@@ -10,24 +10,15 @@ function json(data, status = 200, origin = "", allowed = false) {
   const headers = {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
-    "Vary": "Origin",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
     "X-Content-Type-Options": "nosniff"
   };
-  if (origin && allowed) {
-    headers["Access-Control-Allow-Origin"] = origin;
-    headers["Access-Control-Allow-Methods"] = "GET, OPTIONS";
-    headers["Access-Control-Allow-Headers"] = "Content-Type";
-    headers["Access-Control-Max-Age"] = "86400";
-  }
   return new Response(JSON.stringify(data), { status, headers });
 }
 
-function isAllowedOrigin(origin, env) {
-  if (!origin) return true;
-  const configured = (env.ALLOWED_ORIGINS || DEFAULT_ALLOWED_ORIGINS.join(","))
-    .split(",").map(value => value.trim()).filter(Boolean);
-  return configured.includes(origin);
-}
 
 function rateLimited(request) {
   const ip = request.headers.get("CF-Connecting-IP") || "unknown";
@@ -109,18 +100,15 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const origin = request.headers.get("Origin") || "";
-    const allowed = isAllowedOrigin(origin, env);
 
     if (request.method === "OPTIONS") {
-      if (origin && !allowed) return json({ ok: false, error: "Origin not allowed." }, 403);
       return new Response(null, {
         status: 204,
         headers: {
-          "Access-Control-Allow-Origin": origin || "null",
+          "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "GET, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type",
-          "Access-Control-Max-Age": "86400",
-          "Vary": "Origin"
+          "Access-Control-Max-Age": "86400"
         }
       });
     }
@@ -128,7 +116,6 @@ export default {
     if (request.method !== "GET") {
       return json({ ok: false, error: "Only GET requests are supported." }, 405, origin, allowed);
     }
-    if (!allowed) return json({ ok: false, error: "Origin not allowed." }, 403);
 
     const secIdentityConfigured = /^\S+\s+\([^)]*@[^)]*\)$/.test((env.SEC_USER_AGENT || "").trim());
 
