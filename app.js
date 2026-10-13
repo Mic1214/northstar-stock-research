@@ -513,7 +513,14 @@ searchInput.addEventListener("keydown", function(event) {
       input.value = parsed.origin;
       status.textContent = "Connected. Stock Research can now retrieve SEC-reported annual financial facts.";
     } catch (error) {
-      status.textContent = "Connection failed. Check the URL, Worker deployment, and allowed-origin setting.";
+      status.textContent = "Your browser could not read the Worker response. Confirm the latest Worker deployment is active, then open the health check below.";
+      const healthLink = document.createElement("a");
+      healthLink.className = "api-setup-link";
+      healthLink.href = parsed.origin + "/api/health";
+      healthLink.target = "_blank";
+      healthLink.rel = "noopener noreferrer";
+      healthLink.textContent = "Open Worker health check ↗";
+      status.append(document.createTextNode(" "), healthLink);
     } finally {
       saveButton.disabled = false;
       saveButton.textContent = "Save & test connection";
