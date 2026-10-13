@@ -100,6 +100,9 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const origin = request.headers.get("Origin") || "";
+    // SEC information is public. The bridge permits browser requests from Meridian
+    // without relying on CORS as an authentication mechanism.
+    const allowed = true;
 
     if (request.method === "OPTIONS") {
       return new Response(null, {
