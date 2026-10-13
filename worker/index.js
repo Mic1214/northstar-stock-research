@@ -159,7 +159,7 @@ h1{font-size:26px;margin:0 0 8px}p{color:#b9c6dc} .status{padding:12px;border:1p
       const health = {
         ok: true,
         service: "Meridian SEC research bridge",
-        build: "b22d983",
+        build: "27e3c9e",
         configured: secIdentityConfigured,
         message: secIdentityConfigured ? "SEC request identity is configured." : "Set SEC_USER_AGENT before requesting data."
       };
@@ -176,7 +176,7 @@ a{color:#9bd8ff}small{color:#91a0b8}
 </style></head><body><main><h1>Meridian SEC Bridge</h1>
 <p class="status">Worker response: <strong>OK</strong></p>
 <p>SEC contact setting: <strong>${configuredLabel}</strong></p>
-<p>Build: <code>b22d983</code></p>
+<p>Build: <code>27e3c9e</code></p>
 <p><a href="/">Open bridge homepage</a> · <a href="/api/health?format=json">Request JSON status</a></p>
 <small>This bridge retrieves public SEC company information and does not provide stock prices.</small>
 </main></body></html>`;
