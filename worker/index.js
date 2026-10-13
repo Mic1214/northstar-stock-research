@@ -156,12 +156,41 @@ h1{font-size:26px;margin:0 0 8px}p{color:#b9c6dc} .status{padding:12px;border:1p
     }
 
     if (url.pathname === "/api/health") {
-      return json({
+      const health = {
         ok: true,
         service: "Meridian SEC research bridge",
+        build: "b22d983",
         configured: secIdentityConfigured,
         message: secIdentityConfigured ? "SEC request identity is configured." : "Set SEC_USER_AGENT before requesting data."
-      }, 200, origin, allowed);
+      };
+      const accept = request.headers.get("Accept") || "";
+      if (accept.includes("text/html") && !accept.includes("application/json")) {
+        const configuredLabel = secIdentityConfigured ? "Configured" : "Not configured yet";
+        const page = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meridian SEC Bridge Health</title><style>
+:root{color-scheme:dark}body{margin:0;padding:28px;background:#0b1020;color:#edf2fb;font:16px/1.6 system-ui,sans-serif}
+main{max-width:640px;margin:8vh auto;padding:26px;background:#111a2c;border:1px solid #2b3b59;border-radius:16px}
+h1{margin:0 0 8px;font-size:25px}.status{padding:12px;border:1px solid #34527c;background:#17243a;border-radius:10px}
+a{color:#9bd8ff}small{color:#91a0b8}
+</style></head><body><main><h1>Meridian SEC Bridge</h1>
+<p class="status">Worker response: <strong>OK</strong></p>
+<p>SEC contact setting: <strong>${configuredLabel}</strong></p>
+<p>Build: <code>b22d983</code></p>
+<p><a href="/">Open bridge homepage</a> · <a href="/api/health?format=json">Request JSON status</a></p>
+<small>This bridge retrieves public SEC company information and does not provide stock prices.</small>
+</main></body></html>`;
+        return new Response(page, {
+          status: 200,
+          headers: {
+            "Content-Type": "text/html; charset=utf-8",
+            "Cache-Control": "no-store",
+            "Access-Control-Allow-Origin": "*",
+            "X-Content-Type-Options": "nosniff"
+          }
+        });
+      }
+      return json(health, 200, origin, allowed);
     }
 
     if (!["/api/company", "/api/facts"].includes(url.pathname)) {
