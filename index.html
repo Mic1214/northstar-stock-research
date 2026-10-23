@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b1020">
   <meta name="description" content="Meridian is a learning-first financial research workspace.">
   <title>Meridian — Financial Research</title>
-  <link rel="stylesheet" href="styles.css?v=20261011-13">
+  <link rel="stylesheet" href="styles.css?v=20261023-01">
 </head>
 <body>
   <svg class="svg-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><defs>
@@ -87,14 +87,85 @@
         </div>
       </section>
       <section class="page" id="page-analysis">
-        <div class="page-heading"><div><p class="eyebrow">STRUCTURED THINKING</p><h1>Analysis Lab</h1><p class="subheading">A framework for asking better questions, not predicting the future.</p></div></div>
-        <div class="notice"><span class="notice-icon">i</span><div><strong>No company scores are calculated yet.</strong><p>We’ll only add a score after the underlying metrics, sources, weights, and limitations are clearly defined.</p></div></div>
-        <div class="panel"><h2>Research checklist preview</h2><p class="muted">Use this as a question list. Nothing is scored or saved in this starter.</p><div class="checklist-preview">
-          <div><span>01</span><strong>Business quality</strong><p>Can I explain how this company earns money?</p></div>
-          <div><span>02</span><strong>Financial health</strong><p>Are revenue, profit, cash flow, and debt understandable?</p></div>
-          <div><span>03</span><strong>Price and valuation</strong><p>What assumptions are built into the current price?</p></div>
-          <div><span>04</span><strong>Risks and alternatives</strong><p>What could go wrong, and what evidence could change my view?</p></div>
-        </div></div>
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">MERIDIAN'S CORE FRAMEWORK</p>
+            <h1>Fundamental Stock Checklist</h1>
+            <p class="subheading">Your primary system for analyzing business quality, growth, financial strength, valuation, and market sponsorship.</p>
+          </div>
+        </div>
+        <div class="notice">
+          <span class="notice-icon">i</span>
+          <div>
+            <strong>This is Meridian's main company-analysis system.</strong>
+            <p>The checklist has 42 criteria. A confirmed pass earns one point. A criterion that is not yet verified remains open, and the overall label stays provisional until all 42 have been reviewed.</p>
+          </div>
+        </div>
+        <div class="panel fundamental-start-panel">
+          <div class="section-heading">
+            <h2>Choose a company</h2>
+            <p class="muted">Each company's answers and evidence notes are saved locally in this browser. They are not sent to Meridian's server.</p>
+          </div>
+          <div class="fundamental-company-bar">
+            <div class="fundamental-company-field">
+              <label for="fundamental-company">Company name or ticker</label>
+              <input id="fundamental-company" type="text" maxlength="100" autocomplete="off" placeholder="Example: MSFT or Microsoft">
+            </div>
+            <button type="button" id="fundamental-load" class="primary-button">Load / start checklist</button>
+            <button type="button" id="fundamental-reset" class="secondary-button" hidden>Reset review</button>
+          </div>
+          <p class="muted small" id="fundamental-status" role="status" aria-live="polite">Enter a company name or ticker, then choose Load / start checklist.</p>
+        </div>
+
+        <div id="fundamental-review" hidden>
+          <div class="panel fundamental-score-panel">
+            <div class="fundamental-score-heading">
+              <div>
+                <p class="eyebrow">CURRENT REVIEW</p>
+                <h2 id="fundamental-active-company">Company</h2>
+                <p class="muted small">One point for each pass · maximum 42 points</p>
+              </div>
+              <span class="tag" id="fundamental-save-state">Saved in this browser</span>
+            </div>
+            <div class="fundamental-stats">
+              <div class="fundamental-stat-card"><span>Passes</span><strong id="fundamental-passes">0 / 42</strong></div>
+              <div class="fundamental-stat-card"><span>Not met</span><strong id="fundamental-not-met">0</strong></div>
+              <div class="fundamental-stat-card"><span>Not verified</span><strong id="fundamental-unreviewed">42</strong></div>
+              <div class="fundamental-stat-card"><span>Reviewed</span><strong id="fundamental-reviewed">0 / 42</strong></div>
+            </div>
+            <div class="fundamental-progress-track" id="fundamental-progress" role="progressbar" aria-label="Checklist criteria reviewed" aria-valuemin="0" aria-valuemax="42" aria-valuenow="0"><div id="fundamental-progress-fill"></div></div>
+            <p id="fundamental-rating" class="fundamental-rating" aria-live="polite">Provisional — review the checks and record evidence before assigning a result.</p>
+            <p id="fundamental-score-range" class="muted small">Potential pass-count range: 0–42 until checks are reviewed.</p>
+          </div>
+
+          <div class="fundamental-checklist-intro">
+            <h2>42-point company review</h2>
+            <p class="muted">For each criterion, choose Pass, Not met, or Not yet verified. Open “Meaning and how to check” for plain-language guidance from the checklist glossary. Add evidence, dates, and source links where you can.</p>
+          </div>
+          <div id="fundamental-sections" class="fundamental-sections"></div>
+
+          <details class="panel fundamental-rubric">
+            <summary>Official scoring bands from the Fundamental Stock Checklist</summary>
+            <div class="fundamental-rubric-grid">
+              <div><strong>37–42 passes</strong><span>Elite Opportunity</span></div>
+              <div><strong>31–36 passes</strong><span>Strong Buy</span></div>
+              <div><strong>26–30 passes</strong><span>Buy / Watchlist</span></div>
+              <div><strong>25 passes</strong><span>Minimum Pass / Speculative</span></div>
+              <div><strong>Below 25 passes</strong><span>Fail / Avoid</span></div>
+            </div>
+            <p class="muted small">Meridian will only show a final band after every criterion has a decision. The label summarizes your checklist result; it does not predict returns or guarantee that a stock is suitable.</p>
+          </details>
+
+          <details class="panel fundamental-limitations">
+            <summary>Important limitations and evidence rules</summary>
+            <ul>
+              <li>Some checks need data that SEC filings alone may not provide, including analyst estimates and price targets, peer comparisons, institutional ownership trends, and distribution days.</li>
+              <li>Record the source and date in evidence notes. Do not treat an assumption, an old estimate, or unavailable information as a confirmed pass.</li>
+              <li>Not yet verified is distinct from Not met. It keeps the final label provisional until the evidence has been checked.</li>
+              <li>This is an educational research framework, not personalized financial advice. It helps organize investigation; it cannot guarantee a profitable result.</li>
+            </ul>
+          </details>
+        </div>
       </section>
       <section class="page" id="page-learning">
         <div class="page-heading"><div><p class="eyebrow">BUILD YOUR KNOWLEDGE</p><h1>Learning Center</h1><p class="subheading">Short, source-linked lessons. Learn the concepts before using them to evaluate evidence.</p></div></div>
@@ -282,6 +353,6 @@
       <footer><span>Meridian · Educational research workspace</span><span>Not investment advice · Verify information before relying on it</span></footer>
     </main>
   </div>
-  <script src="app.js?v=20261013-01"></script>
+  <script src="app.js?v=20261023-01"></script>
 </body>
 </html>
