@@ -8,6 +8,7 @@ Meridian is a beginner-friendly financial research and learning website, develop
 - Accessible navigation and mobile-friendly layouts
 - No stock-price or headline feed is connected; the app does not fabricate prices, headlines, returns, company examples, or scores
 - Stock Research can display annual SEC XBRL facts once the optional Cloudflare Worker is deployed and its URL is configured in Settings
+- Fundamental Stock Checklist reviews are saved separately per company in the current browser; only explicit passes earn points, and an overall rating remains provisional while criteria are unverified
 - Official SEC EDGAR search is linked directly; in-app facts require the one-time setup in [SEC_DATA_SETUP.md](SEC_DATA_SETUP.md). Market prices and headlines remain excluded until a suitable licensed provider is chosen
 
 ## Run locally
