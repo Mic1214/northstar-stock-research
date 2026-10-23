@@ -21,7 +21,7 @@ The site is published through GitHub Pages. The workflow in `.github/workflows/p
 1. Finish small interface refinements and educational lessons.
 2. Deploy the optional SEC bridge using [SEC_DATA_SETUP.md](SEC_DATA_SETUP.md), then test in-app company financial facts and source links.
 3. Improve financial-statement coverage and add plain-language explanations for each reported metric.
-4. Add transparent analysis checklists with uncertainty and limitations.
+4. Keep Meridian's core Analysis Lab aligned with the owner's 42-point Fundamental Stock Checklist, including its nine sections, supplied glossary, official score bands, evidence notes, and saved company reviews.
 5. Add portfolio and retirement-account tracking, keeping contributions separate from investment returns.
 6. Add researched daily reports only if reliable data and scheduling are available.
 
