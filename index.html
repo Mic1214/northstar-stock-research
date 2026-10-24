@@ -50,7 +50,7 @@
       </header>
       <section class="page active" id="page-overview">
         <div class="page-heading"><div><p class="eyebrow">YOUR RESEARCH DESK</p><h1>Market Overview</h1><p class="subheading">A clear place to understand markets before making decisions.</p></div><div class="date-chip" id="today"></div></div>
-        <div class="notice" id="market-connection-notice"><span class="notice-icon">i</span><div><strong id="market-notice-title">Market data is not configured yet.</strong><p id="market-notice-body">Connect the Marketstack key to show the latest available daily closes. This feed is end-of-day, not live intraday data.</p></div></div>
+        <div class="notice" id="market-connection-notice"><span class="notice-icon">i</span><div><strong id="market-notice-title">Market data is not configured yet.</strong><p id="market-notice-body">Connect the Alpha Vantage key to show the latest available daily closes. This feed is end-of-day, not live intraday data.</p></div></div>
         <div class="panel market-watch-panel" id="market-watch-panel">
           <div class="market-watch-heading">
             <div>
@@ -65,8 +65,8 @@
             <article class="market-quote-card"><span class="market-symbol">DIA</span><strong>Not connected</strong><small>Dow Jones ETF proxy</small></article>
           </div>
           <div class="market-watch-footer">
-            <p class="muted small" id="market-quotes-status" role="status">Waiting for Marketstack setup.</p>
-            <a href="https://marketstack.com/" target="_blank" rel="noopener noreferrer">Data provider: Marketstack ↗</a>
+            <p class="muted small" id="market-quotes-status" role="status">Waiting for Alpha Vantage setup.</p>
+            <a href="https://Alpha Vantage.com/" target="_blank" rel="noopener noreferrer">Data provider: Alpha Vantage ↗</a>
           </div>
           <p class="market-data-disclaimer">Daily closing data only. “Session move” compares close with that day’s open, not the previous close. Quotes may be stale on market holidays or before the provider publishes that day’s data.</p>
         </div>
@@ -86,7 +86,7 @@
           <div class="roadmap-steps">
             <div class="roadmap-step done"><span>01</span><div><strong>Core interface</strong><small>Complete</small></div></div>
             <div class="roadmap-step done"><span>02</span><div><strong>Lessons and usability</strong><small>Complete</small></div></div>
-            <div class="roadmap-step current"><span>03</span><div><strong>Verified market and company sources</strong><small>Marketstack EOD setup</small></div></div>
+            <div class="roadmap-step current"><span>03</span><div><strong>Verified market and company sources</strong><small>Alpha Vantage EOD setup</small></div></div>
             <div class="roadmap-step"><span>04</span><div><strong>Research and portfolio tools</strong><small>Later stage</small></div></div>
           </div>
           <p class="roadmap-note">Research upgrades are beginning with official SEC filings and annual financial facts. Market prices and news remain off until a properly licensed source is configured.</p>
@@ -350,14 +350,14 @@
       <section class="page" id="page-settings">
         <div class="page-heading"><div><p class="eyebrow">PERSONALIZE MERIDIAN</p><h1>Settings</h1><p class="subheading">Manage data connections and personalize your research workspace.</p></div></div>
         <div class="panel api-settings-panel market-api-settings-panel">
-          <div class="theme-settings-heading"><div><h2>Market data connection</h2><p class="muted">Provider: Marketstack. The free plan supplies end-of-day data only—not live intraday quotes. Keep the API key private in Cloudflare.</p></div><span class="tag">Daily closes</span></div>
-          <p class="muted small">The current free tier lists 100 requests per month for non-commercial use. The three-market snapshot is cached to limit requests. <a href="https://marketstack.com/pricing/" target="_blank" rel="noopener noreferrer">Check current plan terms ↗</a></p>
-          <p class="market-secret-instruction">After obtaining an API key, add it in Cloudflare under <strong>Workers &amp; Pages → meridian-sec-data → Settings → Variables and Secrets → Add → Secret</strong>. Set the name to <code>MARKETSTACK_API_KEY</code> and the value to your key. Do not paste the key into GitHub or this chat.</p>
+          <div class="theme-settings-heading"><div><h2>Market data connection</h2><p class="muted">Provider: Alpha Vantage. The free plan supplies end-of-day data only—not live intraday quotes. Keep the API key private in Cloudflare.</p></div><span class="tag">Daily closes</span></div>
+          <p class="muted small">The standard free allowance is 25 API requests per day. This setup uses end-of-day data, caches quotes for a day, and does not require a paid subscription. Do not upgrade to a paid plan. <a href="https://Alpha Vantage.com/pricing/" target="_blank" rel="noopener noreferrer">Check current plan terms ↗</a></p>
+          <p class="market-secret-instruction">After obtaining an API key, add it in Cloudflare under <strong>Workers &amp; Pages → meridian-sec-data → Settings → Variables and Secrets → Add → Secret</strong>. Set the name to <code>ALPHA_VANTAGE_API_KEY</code> and the value to your key. Do not paste the key into GitHub or this chat.</p>
           <div class="api-settings-actions">
             <button type="button" id="market-test-button" class="primary-button">Test market connection</button>
             <p id="market-api-status" class="muted small" role="status" aria-live="polite">Not tested. The API key is configured as a Cloudflare Worker secret, not in Meridian's browser settings.</p>
           </div>
-          <a class="api-setup-link" href="https://marketstack.com/pricing/" target="_blank" rel="noopener noreferrer">Get a Marketstack API key ↗</a>
+          <a class="api-setup-link" href="https://Alpha Vantage.com/pricing/" target="_blank" rel="noopener noreferrer">Get a free Alpha Vantage API key ↗</a>
         </div>
         <div class="panel api-settings-panel">
           <div class="theme-settings-heading"><div><h2>SEC data connection</h2><p class="muted">Connect Meridian to its SEC bridge. The address is saved only in this browser; the market-data key is configured separately as a Cloudflare secret.</p></div><span class="tag">Research data</span></div>
@@ -382,6 +382,6 @@
       <footer><span>Meridian · Educational research workspace</span><span>Not investment advice · Verify information before relying on it</span></footer>
     </main>
   </div>
-  <script src="app.js?v=20261024-01"></script>
+  <script src="app.js?v=20261024-alpha-vantage"></script>
 </body>
 </html>
