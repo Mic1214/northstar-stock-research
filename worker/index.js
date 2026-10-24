@@ -62,70 +62,79 @@ async function secJson(url, env) {
 
 const MARKET_ALLOWED_SYMBOLS = new Set(["SPY", "QQQ", "DIA", "AAPL"]);
 
-async function marketStackQuote(symbol, env) {
-  const apiKey = (env.MARKETSTACK_API_KEY || "").trim();
+/*
+ * Alpha Vantage's standard free API provides end-of-day data, not live US quotes.
+ * Keep the API key on the Worker, cache by symbol for 24 hours, and allow only
+ * a small fixed watchlist so the public endpoint cannot request arbitrary symbols.
+ */
+async function alphaVantageQuote(symbol, env) {
+  const apiKey = (env.ALPHA_VANTAGE_API_KEY || "").trim();
   if (!apiKey) {
-    const error = new Error("Market data is not configured yet. Add MARKETSTACK_API_KEY as a secret on the Cloudflare Worker.");
+    const error = new Error("Market data is not configured yet. Add ALPHA_VANTAGE_API_KEY as a Cloudflare Worker secret. No paid plan is required.");
     error.status = 503;
     throw error;
   }
 
-  const endpoint = new URL("https://api.marketstack.com/v2/tickers/" + encodeURIComponent(symbol) + "/eod/latest");
-  endpoint.searchParams.set("access_key", apiKey);
+  const endpoint = new URL("https://www.alphavantage.co/query");
+  endpoint.searchParams.set("function", "GLOBAL_QUOTE");
+  endpoint.searchParams.set("symbol", symbol);
+  endpoint.searchParams.set("apikey", apiKey);
 
   const response = await fetch(endpoint.toString(), {
     headers: { "Accept": "application/json" },
-    // Marketstack's free feed is end-of-day. Cache each symbol for 24 hours
-    // so repeat visits do not rapidly consume the small monthly request quota.
+    // Cache each quote for a day; free Alpha Vantage keys have a strict daily cap.
     cf: { cacheTtl: 86400, cacheEverything: true }
   });
 
-  let payload;
+  let payload = {};
   try {
     payload = await response.json();
   } catch (error) {
     payload = {};
   }
 
-  if (!response.ok || (payload && payload.error)) {
-    const providerError = payload && payload.error;
-    let message = providerError && (providerError.message || providerError.info);
-    if (!message) {
-      message = response.status === 429
-        ? "Marketstack rate limit reached. Please try again later."
-        : "Marketstack did not return a valid quote. Check the API key, endpoint access, and plan limits.";
-    }
-    const error = new Error(String(message).slice(0, 240));
-    error.status = response.status === 429 ? 429 : 502;
+  const providerMessage = payload["Error Message"] || payload.Note || payload.Information;
+  if (!response.ok || providerMessage) {
+    const message = String(providerMessage || (response.status === 429
+      ? "Alpha Vantage rate limit reached. Try again tomorrow; this integration uses only the free tier."
+      : "Alpha Vantage did not return a valid quote. Check the key and free-tier availability."));
+    const error = new Error(message.slice(0, 260));
+    error.status = /rate limit|25 requests per day|call frequency/i.test(message) ? 429 : (response.status >= 500 ? 502 : 400);
     throw error;
   }
 
-  let record = payload && payload.data ? payload.data : payload;
-  if (Array.isArray(record)) record = record[0];
-  if (record && Array.isArray(record.data)) record = record.data[0];
-  else if (record && record.data && typeof record.data === "object") record = record.data;
-
-  const close = Number(record && (record.close ?? record.adj_close));
-  const openValue = Number(record && record.open);
-  if (!record || !Number.isFinite(close) || close <= 0) {
-    const error = new Error("Marketstack did not return an end-of-day closing price for " + symbol + ". The symbol may not be available on the current plan.");
+  const record = payload["Global Quote"];
+  const price = Number(record && record["05. price"]);
+  if (!record || !Number.isFinite(price) || price <= 0) {
+    const error = new Error("Alpha Vantage returned no end-of-day price for " + symbol + ". This may be a provider limit or an unavailable symbol.");
     error.status = 502;
     throw error;
   }
 
-  const open = Number.isFinite(openValue) && openValue > 0 ? openValue : null;
-  const changeFromOpenPct = open === null ? null : ((close - open) / open) * 100;
+  const numberField = function(key) {
+    const n = Number(record[key]);
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  };
+  const open = numberField("02. open");
+  const previousClose = numberField("08. previous close");
+  const changeRaw = String(record["10. change percent"] || "").replace("%", "").trim();
+  const reportedChange = Number(changeRaw);
+  const changeFromPrevClosePct = Number.isFinite(reportedChange)
+    ? reportedChange
+    : (previousClose && previousClose > 0 ? ((price - previousClose) / previousClose) * 100 : null);
+
   return {
-    symbol: String(record.symbol || symbol).toUpperCase(),
-    date: record.date || record.datetime || null,
-    exchange: record.exchange || record.mic || null,
+    symbol: String(record["01. symbol"] || symbol).toUpperCase(),
+    date: record["07. latest trading day"] || null,
+    exchange: null,
     open,
-    high: Number.isFinite(Number(record.high)) ? Number(record.high) : null,
-    low: Number.isFinite(Number(record.low)) ? Number(record.low) : null,
-    close,
-    volume: Number.isFinite(Number(record.volume)) ? Number(record.volume) : null,
-    changeFromOpenPct,
-    changeLabel: "close vs. open"
+    high: numberField("03. high"),
+    low: numberField("04. low"),
+    close: price,
+    previousClose,
+    volume: numberField("06. volume"),
+    changeFromPrevClosePct,
+    changeLabel: "vs. prior close"
   };
 }
 
@@ -195,9 +204,9 @@ export default {
       const statusText = secIdentityConfigured
         ? "SEC contact setting: configured"
         : "SEC contact setting: not configured yet";
-      const marketStatusText = (env.MARKETSTACK_API_KEY || "").trim()
-        ? "Marketstack data key: configured"
-        : "Marketstack data key: not configured yet";
+      const marketStatusText = (env.ALPHA_VANTAGE_API_KEY || "").trim()
+        ? "Alpha Vantage data key: configured"
+        : "Alpha Vantage data key: not configured yet";
       const html = `<!doctype html>
 <html lang="en">
 <head>
@@ -216,7 +225,7 @@ h1{font-size:26px;margin:0 0 8px}p{color:#b9c6dc} .status{padding:12px;border:1p
 <p class="status">${statusText}</p>
 <p class="status">${marketStatusText}</p>
 <p>Open <a href="/api/health">/api/health</a> for machine-readable status, or <a href="/api/market">/api/market</a> to test the end-of-day market feed.</p>
-<p>Market prices are end-of-day only on the free provider tier, not live intraday quotes.</p>
+<p>Market prices are end-of-day only on the standard free provider tier, not live intraday quotes.</p>
 </main></body></html>`;
       return new Response(html, {
         status: 200,
@@ -232,9 +241,9 @@ h1{font-size:26px;margin:0 0 8px}p{color:#b9c6dc} .status{padding:12px;border:1p
       const health = {
         ok: true,
         service: "Meridian data bridge",
-        build: "market-eod-2026-10-24",
+        build: "alphavantage-eod-2026-10-24",
         configured: secIdentityConfigured,
-        marketConfigured: Boolean((env.MARKETSTACK_API_KEY || "").trim()),
+        marketConfigured: Boolean((env.ALPHA_VANTAGE_API_KEY || "").trim()),
         message: secIdentityConfigured ? "SEC request identity is configured." : "Set SEC_USER_AGENT before requesting SEC data."
       };
       const accept = request.headers.get("Accept") || "";
@@ -250,7 +259,7 @@ a{color:#9bd8ff}small{color:#91a0b8}
 </style></head><body><main><h1>Meridian SEC Bridge</h1>
 <p class="status">Worker response: <strong>OK</strong></p>
 <p>SEC contact setting: <strong>${configuredLabel}</strong></p>
-<p>Build: <code>market-eod-2026-10-24</code></p>
+<p>Build: <code>alphavantage-eod-2026-10-24</code></p>
 <p><a href="/">Open bridge homepage</a> · <a href="/api/health?format=json">Request JSON status</a></p>
 <small>This bridge retrieves public SEC company information and does not provide stock prices.</small>
 </main></body></html>`;
@@ -272,12 +281,12 @@ a{color:#9bd8ff}small{color:#91a0b8}
         return json({ ok: false, error: "Too many market-data requests in a short period. Please wait a minute and try again." }, 429, origin, allowed);
       }
 
-      if (!(env.MARKETSTACK_API_KEY || "").trim()) {
+      if (!(env.ALPHA_VANTAGE_API_KEY || "").trim()) {
         return json({
           ok: false,
           configured: false,
-          provider: "Marketstack",
-          error: "Market data is not configured yet. Add MARKETSTACK_API_KEY as a Cloudflare Worker secret."
+          provider: "Alpha Vantage",
+          error: "Market data is not configured yet. Add ALPHA_VANTAGE_API_KEY as a Cloudflare Worker secret."
         }, 503, origin, allowed);
       }
 
@@ -295,7 +304,7 @@ a{color:#9bd8ff}small{color:#91a0b8}
       const errors = [];
       for (const symbol of symbols) {
         try {
-          quotes.push(await marketStackQuote(symbol, env));
+          quotes.push(await alphaVantageQuote(symbol, env));
         } catch (error) {
           errors.push({ symbol, error: error.message });
         }
@@ -304,13 +313,13 @@ a{color:#9bd8ff}small{color:#91a0b8}
       return json({
         ok: quotes.length > 0,
         configured: true,
-        provider: "Marketstack",
-        dataType: "End-of-day closing data",
+        provider: "Alpha Vantage",
+        dataType: "End-of-day quote data",
         checkedAt: new Date().toISOString(),
-        source: "https://marketstack.com/",
+        source: "https://Alpha Vantage.com/",
         quotes,
         errors,
-        disclaimer: "These are the latest available end-of-day quotes, not live intraday prices. SPY, QQQ, and DIA are ETF proxies, not official index values. Close-vs-open movement is not the same as change from the previous close."
+        disclaimer: "These are the latest available end-of-day quotes, not live intraday prices. SPY, QQQ, and DIA are ETF proxies, not official index values. Daily movement is measured against the previous close."
       }, quotes.length > 0 ? 200 : 502, origin, allowed);
     }
 
