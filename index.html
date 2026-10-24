@@ -68,7 +68,7 @@
             <p class="muted small" id="market-quotes-status" role="status">Waiting for Alpha Vantage setup.</p>
             <a href="https://www.alphavantage.co/" target="_blank" rel="noopener noreferrer">Data provider: Alpha Vantage ↗</a>
           </div>
-          <p class="market-data-disclaimer">Daily closing data only. “Session move” compares close with that day’s open, not the previous close. Quotes may be stale on market holidays or before the provider publishes that day’s data.</p>
+          <p class="market-data-disclaimer">Daily closing data only, not live prices. Movement compares the latest close with the previous close. SPY, QQQ, and DIA are ETF proxies rather than official index levels; prices may be stale on market holidays or before the provider publishes that day’s data.</p>
         </div>
         <div class="stats-grid">
           <article class="panel stat-card"><div class="card-label">Market data</div><div class="stat-value" id="market-status-value">Not configured</div><div class="muted" id="market-status-detail">Daily closing prices</div></article>
@@ -351,13 +351,13 @@
         <div class="page-heading"><div><p class="eyebrow">PERSONALIZE MERIDIAN</p><h1>Settings</h1><p class="subheading">Manage data connections and personalize your research workspace.</p></div></div>
         <div class="panel api-settings-panel market-api-settings-panel">
           <div class="theme-settings-heading"><div><h2>Market data connection</h2><p class="muted">Provider: Alpha Vantage. The free plan supplies end-of-day data only—not live intraday quotes. Keep the API key private in Cloudflare.</p></div><span class="tag">Daily closes</span></div>
-          <p class="muted small">The standard free allowance is 25 API requests per day. This setup uses end-of-day data, caches quotes for a day, and does not require a paid subscription. Do not upgrade to a paid plan. <a href="https://www.alphavantage.co/support/" target="_blank" rel="noopener noreferrer">Check current plan terms ↗</a></p>
+          <p class="muted small">The standard free allowance is 25 API requests per day. This setup uses end-of-day data, caches quotes for a day, and does not require a paid subscription. Do not upgrade to a paid plan. <a href="https://www.alphavantage.co/support/" target="_blank" rel="noopener noreferrer">Free API details ↗</a></p>
           <p class="market-secret-instruction">After obtaining an API key, add it in Cloudflare under <strong>Workers &amp; Pages → meridian-sec-data → Settings → Variables and Secrets → Add → Secret</strong>. Set the name to <code>ALPHA_VANTAGE_API_KEY</code> and the value to your key. Do not paste the key into GitHub or this chat.</p>
           <div class="api-settings-actions">
             <button type="button" id="market-test-button" class="primary-button">Test market connection</button>
             <p id="market-api-status" class="muted small" role="status" aria-live="polite">Not tested. The API key is configured as a Cloudflare Worker secret, not in Meridian's browser settings.</p>
           </div>
-          <a class="api-setup-link" href="https://www.alphavantage.co/support/" target="_blank" rel="noopener noreferrer">Get a free Alpha Vantage API key ↗</a>
+          <a class="api-setup-link" href="https://www.alphavantage.co/support/#api-key" target="_blank" rel="noopener noreferrer">Get a free Alpha Vantage API key ↗</a>
         </div>
         <div class="panel api-settings-panel">
           <div class="theme-settings-heading"><div><h2>SEC data connection</h2><p class="muted">Connect Meridian to its SEC bridge. The address is saved only in this browser; the market-data key is configured separately as a Cloudflare secret.</p></div><span class="tag">Research data</span></div>
