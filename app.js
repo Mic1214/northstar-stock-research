@@ -553,7 +553,7 @@ const MARKET_WATCH_ITEMS = [
   { symbol: "QQQ", label: "Nasdaq-100 ETF proxy" },
   { symbol: "DIA", label: "Dow Jones ETF proxy" }
 ];
-const MARKET_CACHE_KEY = "meridian-market-eod-snapshot-v1";
+const MARKET_CACHE_KEY = "meridian-alpha-vantage-eod-snapshot-v1";
 const MARKET_BROWSER_CACHE_MS = 22 * 60 * 60 * 1000;
 let marketLoadPromise = null;
 
