@@ -547,7 +547,7 @@ searchInput.addEventListener("keydown", function(event) {
 })();
 
 
-/* End-of-day Marketstack snapshot. API secrets stay on the Worker, never in browser code. */
+/* End-of-day Alpha Vantage snapshot. API secrets stay on the Worker, never in browser code. */
 const MARKET_WATCH_ITEMS = [
   { symbol: "SPY", label: "S&P 500 ETF proxy" },
   { symbol: "QQQ", label: "Nasdaq-100 ETF proxy" },
@@ -612,12 +612,12 @@ function renderMarketSnapshot(payload, options) {
       meta.textContent = "Close · " + formatMarketDate(quote.date);
       const move = document.createElement("span");
       move.className = "market-move";
-      if (typeof quote.changeFromOpenPct === "number" && Number.isFinite(quote.changeFromOpenPct)) {
-        const up = quote.changeFromOpenPct > 0;
-        const down = quote.changeFromOpenPct < 0;
+      if (typeof quote.changeFromPrevClosePct === "number" && Number.isFinite(quote.changeFromPrevClosePct)) {
+        const up = quote.changeFromPrevClosePct > 0;
+        const down = quote.changeFromPrevClosePct < 0;
         move.classList.add(up ? "market-positive" : down ? "market-negative" : "market-flat");
         const prefix = up ? "+" : "";
-        move.textContent = prefix + quote.changeFromOpenPct.toFixed(2) + "% close vs. open";
+        move.textContent = prefix + quote.changeFromPrevClosePct.toFixed(2) + "% vs. prior close";
       } else {
         move.classList.add("market-flat");
         move.textContent = "Session move unavailable";
@@ -632,26 +632,26 @@ function renderMarketSnapshot(payload, options) {
     } else {
       price.className = "market-quote-unavailable";
       price.textContent = configured ? "No quote returned" : "Awaiting key";
-      meta.textContent = error && error.error ? error.error : "Set the Marketstack key in Cloudflare to load data.";
+      meta.textContent = error && error.error ? error.error : "Set ALPHA_VANTAGE_API_KEY as a Cloudflare secret to load data.";
       card.append(symbol, label, price, meta);
     }
     grid.append(card);
   });
 
   if (marketStatus) marketStatus.textContent = shown ? "EOD connected" : (configured ? "Unavailable" : "Not configured");
-  if (marketDetail) marketDetail.textContent = shown ? "Latest available daily closes" : "Marketstack API key needed";
+  if (marketDetail) marketDetail.textContent = shown ? "Latest available daily closes" : "Alpha Vantage API key needed";
 
   if (shown) {
     if (noticeTitle) noticeTitle.textContent = "Market data is connected — daily closing prices only.";
-    if (noticeBody) noticeBody.textContent = "Prices are the latest end-of-day records available from Marketstack. These ETF proxies are not official index levels, and intraday live quotes are not included.";
+    if (noticeBody) noticeBody.textContent = "Prices are the latest end-of-day records available from Alpha Vantage. These ETF proxies are not official index levels, and intraday live quotes are not included.";
     const checkedAt = payload && payload.checkedAt ? new Date(payload.checkedAt).toLocaleString() : "just now";
-    status.textContent = "Source: Marketstack · checked " + checkedAt + (options && options.cached ? " · using this browser's cached snapshot." : ".");
+    status.textContent = "Source: Alpha Vantage · checked " + checkedAt + (options && options.cached ? " · using this browser's cached snapshot." : ".");
     if (errors.length) status.textContent += " Some symbols were unavailable: " + errors.map(function(item) { return item.symbol; }).join(", ") + ".";
   } else {
-    if (noticeTitle) noticeTitle.textContent = configured ? "Market data could not be loaded." : "Marketstack API key is not configured yet.";
+    if (noticeTitle) noticeTitle.textContent = configured ? "Market data could not be loaded." : "Alpha Vantage API key is not configured yet.";
     if (noticeBody) noticeBody.textContent = configured
       ? "Check the status below or the Market data connection panel in Settings. No placeholder prices are being shown."
-      : "After adding MARKETSTACK_API_KEY as a Cloudflare Worker secret, test the connection in Settings. Until then, no prices are shown.";
+      : "After adding ALPHA_VANTAGE_API_KEY as a Cloudflare Worker secret, test the connection in Settings. Until then, no prices are shown.";
     const firstError = errors[0] && errors[0].error;
     status.textContent = (payload && payload.error) || firstError || "Market data is not available yet. Check the Market data connection panel in Settings.";
   }
@@ -750,9 +750,9 @@ async function loadMarketSnapshot(force) {
     .then(function(response) { return response.json(); })
     .then(function(health) {
       if (health && health.marketConfigured) {
-        status.textContent = "Marketstack key is present. Run a one-symbol test to confirm the provider accepts it.";
+        status.textContent = "Alpha Vantage key is present. Run a one-symbol test to confirm the provider accepts it.";
       } else {
-        status.textContent = "Marketstack key not detected on the Worker. Add MARKETSTACK_API_KEY as a Cloudflare secret, then test.";
+        status.textContent = "Alpha Vantage key not detected on the Worker. Add ALPHA_VANTAGE_API_KEY as a Cloudflare secret, then test.";
       }
     })
     .catch(function() {
@@ -763,7 +763,7 @@ async function loadMarketSnapshot(force) {
     testButton.disabled = true;
     const priorText = testButton.textContent;
     testButton.textContent = "Testing…";
-    status.textContent = "Testing Marketstack with one symbol (AAPL). This uses one provider request if not already cached.";
+    status.textContent = "Testing Alpha Vantage with one symbol (AAPL). This uses one provider request if not already cached.";
     try {
       const response = await fetch(base + "/api/market?symbols=AAPL", {
         headers: { "Accept": "application/json" },
@@ -774,7 +774,7 @@ async function loadMarketSnapshot(force) {
       if (response.ok && payload.ok && quote) {
         status.textContent = "Connection works. AAPL close: " + formatMarketPrice(quote.close) + " · data date " + formatMarketDate(quote.date) + ".";
       } else {
-        status.textContent = payload.error || (payload.errors && payload.errors[0] && payload.errors[0].error) || "The provider did not return a usable quote. Check the API key and Marketstack plan.";
+        status.textContent = payload.error || (payload.errors && payload.errors[0] && payload.errors[0].error) || "The provider did not return a usable quote. Check the API key and Alpha Vantage plan.";
       }
     } catch (error) {
       status.textContent = "Could not read the Worker response. Confirm the latest Worker deployment and try again.";
