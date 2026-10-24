@@ -21,6 +21,9 @@ function showPage(page) {
   });
   document.getElementById("crumb").textContent = pages[page];
   window.scrollTo({ top: 0, behavior: "smooth" });
+  if (page === "overview" && typeof loadMarketSnapshot === "function") {
+    loadMarketSnapshot(false);
+  }
 }
 
 document.querySelectorAll("[data-page]").forEach(function(button) {
@@ -40,6 +43,7 @@ const searchButton = document.getElementById("search-button");
 const searchResult = document.getElementById("search-result");
 
 const secApiStorageKey = "meridian-sec-api-base-url-v1";
+const DEFAULT_WORKER_URL = "https://meridian-sec-data.micahnorris.workers.dev";
 
 function getSecApiBase() {
   try {
@@ -47,6 +51,10 @@ function getSecApiBase() {
   } catch (error) {
     return "";
   }
+}
+
+function getWorkerApiBase() {
+  return getSecApiBase() || DEFAULT_WORKER_URL;
 }
 
 function appendEdgarLink(parent, query) {
@@ -535,6 +543,245 @@ searchInput.addEventListener("keydown", function(event) {
     }
     input.value = "";
     status.textContent = "Connection removed from this browser. SEC links still work without the bridge.";
+  });
+})();
+
+
+/* End-of-day Marketstack snapshot. API secrets stay on the Worker, never in browser code. */
+const MARKET_WATCH_ITEMS = [
+  { symbol: "SPY", label: "S&P 500 ETF proxy" },
+  { symbol: "QQQ", label: "Nasdaq-100 ETF proxy" },
+  { symbol: "DIA", label: "Dow Jones ETF proxy" }
+];
+const MARKET_CACHE_KEY = "meridian-market-eod-snapshot-v1";
+const MARKET_BROWSER_CACHE_MS = 22 * 60 * 60 * 1000;
+let marketLoadPromise = null;
+
+function formatMarketPrice(value) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "Not available";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2
+  }).format(value);
+}
+
+function formatMarketDate(value) {
+  if (!value) return "Date not reported";
+  const datePart = String(value).slice(0, 10);
+  const date = new Date(datePart + "T12:00:00");
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
+function marketQuoteForSymbol(payload, symbol) {
+  const quotes = Array.isArray(payload && payload.quotes) ? payload.quotes : [];
+  return quotes.find(function(quote) { return quote.symbol === symbol; });
+}
+
+function renderMarketSnapshot(payload, options) {
+  const grid = document.getElementById("market-quote-grid");
+  const status = document.getElementById("market-quotes-status");
+  const marketStatus = document.getElementById("market-status-value");
+  const marketDetail = document.getElementById("market-status-detail");
+  const noticeTitle = document.getElementById("market-notice-title");
+  const noticeBody = document.getElementById("market-notice-body");
+  if (!grid || !status) return;
+
+  grid.replaceChildren();
+  const errors = Array.isArray(payload && payload.errors) ? payload.errors : [];
+  const quotes = Array.isArray(payload && payload.quotes) ? payload.quotes : [];
+  const configured = payload && payload.configured !== false;
+  let shown = 0;
+
+  MARKET_WATCH_ITEMS.forEach(function(item) {
+    const quote = marketQuoteForSymbol(payload, item.symbol);
+    const error = errors.find(function(row) { return row.symbol === item.symbol; });
+    const card = document.createElement("article");
+    card.className = "market-quote-card";
+    const symbol = document.createElement("span");
+    symbol.className = "market-symbol";
+    symbol.textContent = item.symbol;
+    const label = document.createElement("small");
+    label.className = "market-quote-label";
+    label.textContent = item.label;
+    const price = document.createElement("strong");
+    const meta = document.createElement("small");
+    meta.className = "market-quote-date";
+    if (quote && typeof quote.close === "number") {
+      shown += 1;
+      price.textContent = formatMarketPrice(quote.close);
+      meta.textContent = "Close · " + formatMarketDate(quote.date);
+      const move = document.createElement("span");
+      move.className = "market-move";
+      if (typeof quote.changeFromOpenPct === "number" && Number.isFinite(quote.changeFromOpenPct)) {
+        const up = quote.changeFromOpenPct > 0;
+        const down = quote.changeFromOpenPct < 0;
+        move.classList.add(up ? "market-positive" : down ? "market-negative" : "market-flat");
+        const prefix = up ? "+" : "";
+        move.textContent = prefix + quote.changeFromOpenPct.toFixed(2) + "% close vs. open";
+      } else {
+        move.classList.add("market-flat");
+        move.textContent = "Session move unavailable";
+      }
+      card.append(symbol, label, price, move, meta);
+      if (typeof quote.volume === "number" && Number.isFinite(quote.volume)) {
+        const volume = document.createElement("small");
+        volume.className = "market-quote-volume";
+        volume.textContent = "Volume " + new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(quote.volume);
+        card.append(volume);
+      }
+    } else {
+      price.className = "market-quote-unavailable";
+      price.textContent = configured ? "No quote returned" : "Awaiting key";
+      meta.textContent = error && error.error ? error.error : "Set the Marketstack key in Cloudflare to load data.";
+      card.append(symbol, label, price, meta);
+    }
+    grid.append(card);
+  });
+
+  if (marketStatus) marketStatus.textContent = shown ? "EOD connected" : (configured ? "Unavailable" : "Not configured");
+  if (marketDetail) marketDetail.textContent = shown ? "Latest available daily closes" : "Marketstack API key needed";
+
+  if (shown) {
+    if (noticeTitle) noticeTitle.textContent = "Market data is connected — daily closing prices only.";
+    if (noticeBody) noticeBody.textContent = "Prices are the latest end-of-day records available from Marketstack. These ETF proxies are not official index levels, and intraday live quotes are not included.";
+    const checkedAt = payload && payload.checkedAt ? new Date(payload.checkedAt).toLocaleString() : "just now";
+    status.textContent = "Source: Marketstack · checked " + checkedAt + (options && options.cached ? " · using this browser's cached snapshot." : ".");
+    if (errors.length) status.textContent += " Some symbols were unavailable: " + errors.map(function(item) { return item.symbol; }).join(", ") + ".";
+  } else {
+    if (noticeTitle) noticeTitle.textContent = configured ? "Market data could not be loaded." : "Marketstack API key is not configured yet.";
+    if (noticeBody) noticeBody.textContent = configured
+      ? "Check the status below or the Market data connection panel in Settings. No placeholder prices are being shown."
+      : "After adding MARKETSTACK_API_KEY as a Cloudflare Worker secret, test the connection in Settings. Until then, no prices are shown.";
+    const firstError = errors[0] && errors[0].error;
+    status.textContent = (payload && payload.error) || firstError || "Market data is not available yet. Check the Market data connection panel in Settings.";
+  }
+}
+
+function readMarketBrowserCache() {
+  try {
+    const raw = window.localStorage.getItem(MARKET_CACHE_KEY);
+    if (!raw) return null;
+    const saved = JSON.parse(raw);
+    if (!saved || !saved.savedAt || !saved.payload || Date.now() - saved.savedAt > MARKET_BROWSER_CACHE_MS) return null;
+    if (!Array.isArray(saved.payload.quotes) || !saved.payload.quotes.length) return null;
+    return saved;
+  } catch (error) {
+    return null;
+  }
+}
+
+async function loadMarketSnapshot(force) {
+  const grid = document.getElementById("market-quote-grid");
+  const status = document.getElementById("market-quotes-status");
+  const refreshButton = document.getElementById("market-refresh-button");
+  if (!grid || !status) return;
+  if (marketLoadPromise) return marketLoadPromise;
+
+  const cached = readMarketBrowserCache();
+  if (!force && cached) {
+    renderMarketSnapshot(cached.payload, { cached: true });
+    return;
+  }
+
+  if (refreshButton) {
+    refreshButton.disabled = true;
+    refreshButton.textContent = "Loading…";
+  }
+  status.textContent = "Requesting the latest available end-of-day prices…";
+
+  marketLoadPromise = (async function() {
+    try {
+      const response = await fetch(getWorkerApiBase() + "/api/market?symbols=SPY,QQQ,DIA", {
+        headers: { "Accept": "application/json" },
+        cache: "no-store"
+      });
+      let payload = {};
+      try {
+        payload = await response.json();
+      } catch (error) {
+        throw new Error("The Worker response was not readable. Check its Cloudflare deployment.");
+      }
+
+      if (payload && payload.ok && Array.isArray(payload.quotes) && payload.quotes.length) {
+        try {
+          window.localStorage.setItem(MARKET_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), payload: payload }));
+        } catch (error) {
+          // Display the response for this visit even if browser storage is unavailable.
+        }
+      }
+      renderMarketSnapshot(payload, { cached: false });
+    } catch (error) {
+      renderMarketSnapshot({
+        ok: false,
+        configured: false,
+        quotes: [],
+        errors: [],
+        error: "Could not reach the market-data Worker. Check Cloudflare deployment, then use Settings → Market data connection to test."
+      });
+    } finally {
+      marketLoadPromise = null;
+      if (refreshButton) {
+        refreshButton.disabled = false;
+        refreshButton.textContent = "Refresh quotes";
+      }
+    }
+  })();
+  return marketLoadPromise;
+}
+
+(function setupMarketSnapshot() {
+  const refreshButton = document.getElementById("market-refresh-button");
+  if (refreshButton) {
+    refreshButton.addEventListener("click", function() {
+      // The Worker caches provider data for 24 hours to preserve the free API quota.
+      loadMarketSnapshot(true);
+    });
+  }
+  loadMarketSnapshot(false);
+})();
+
+(function setupMarketConnectionTest() {
+  const testButton = document.getElementById("market-test-button");
+  const status = document.getElementById("market-api-status");
+  if (!testButton || !status) return;
+
+  const base = getWorkerApiBase();
+  fetch(base + "/api/health", { headers: { "Accept": "application/json" }, cache: "no-store" })
+    .then(function(response) { return response.json(); })
+    .then(function(health) {
+      if (health && health.marketConfigured) {
+        status.textContent = "Marketstack key is present. Run a one-symbol test to confirm the provider accepts it.";
+      } else {
+        status.textContent = "Marketstack key not detected on the Worker. Add MARKETSTACK_API_KEY as a Cloudflare secret, then test.";
+      }
+    })
+    .catch(function() {
+      status.textContent = "Could not check Worker status. Make sure the latest Worker deployment is active.";
+    });
+
+  testButton.addEventListener("click", async function() {
+    testButton.disabled = true;
+    const priorText = testButton.textContent;
+    testButton.textContent = "Testing…";
+    status.textContent = "Testing Marketstack with one symbol (AAPL). This uses one provider request if not already cached.";
+    try {
+      const response = await fetch(base + "/api/market?symbols=AAPL", {
+        headers: { "Accept": "application/json" },
+        cache: "no-store"
+      });
+      const payload = await response.json();
+      const quote = marketQuoteForSymbol(payload, "AAPL");
+      if (response.ok && payload.ok && quote) {
+        status.textContent = "Connection works. AAPL close: " + formatMarketPrice(quote.close) + " · data date " + formatMarketDate(quote.date) + ".";
+      } else {
+        status.textContent = payload.error || (payload.errors && payload.errors[0] && payload.errors[0].error) || "The provider did not return a usable quote. Check the API key and Marketstack plan.";
+      }
+    } catch (error) {
+      status.textContent = "Could not read the Worker response. Confirm the latest Worker deployment and try again.";
+    } finally {
+      testButton.disabled = false;
+      testButton.textContent = priorText;
+    }
   });
 })();
 
