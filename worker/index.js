@@ -20,16 +20,22 @@ function json(data, status = 200, origin = "", allowed = false) {
 }
 
 
-function rateLimited(request) {
-  const ip = request.headers.get("CF-Connecting-IP") || "unknown";
+function rateLimited(request, bucket = "default", maxRequests = 12) {
+  // Cloudflare supplies this header on deployed Worker requests. If it is
+  // missing, do not put every visitor into one shared "unknown" rate bucket.
+  const ip = request.headers.get("CF-Connecting-IP");
+  if (!ip) return false;
+
+  const key = bucket + ":" + ip;
   const now = Date.now();
-  const prior = rateWindows.get(ip);
-  if (prior && now - prior.start < 60_000 && prior.count >= 12) return true;
-  if (!prior || now - prior.start >= 60_000) rateWindows.set(ip, { start: now, count: 1 });
+  const prior = rateWindows.get(key);
+  if (prior && now - prior.start < 60_000 && prior.count >= maxRequests) return true;
+  if (!prior || now - prior.start >= 60_000) rateWindows.set(key, { start: now, count: 1 });
   else prior.count += 1;
+
   if (rateWindows.size > 2000) {
-    for (const [key, value] of rateWindows) {
-      if (now - value.start > 60_000) rateWindows.delete(key);
+    for (const [entryKey, value] of rateWindows) {
+      if (now - value.start > 60_000) rateWindows.delete(entryKey);
     }
   }
   return false;
@@ -277,16 +283,14 @@ a{color:#9bd8ff}small{color:#91a0b8}
     }
 
     if (url.pathname === "/api/market") {
-      if (rateLimited(request)) {
-        return json({ ok: false, error: "Too many market-data requests in a short period. Please wait a minute and try again." }, 429, origin, allowed);
-      }
-
+      // Missing-key and invalid-symbol requests must not consume the short-term
+      // request allowance; otherwise a setup check can lock out the test button.
       if (!(env.ALPHA_VANTAGE_API_KEY || "").trim()) {
         return json({
           ok: false,
           configured: false,
           provider: "Alpha Vantage",
-          error: "Market data is not configured yet. Add ALPHA_VANTAGE_API_KEY as a Cloudflare Worker secret."
+          error: "Market data is not configured yet. Add ALPHA_VANTAGE_API_KEY as a Cloudflare Worker secret. No paid plan is required."
         }, 503, origin, allowed);
       }
 
@@ -298,6 +302,15 @@ a{color:#9bd8ff}small{color:#91a0b8}
           ok: false,
           error: "For now, the market snapshot supports SPY, QQQ, and DIA. AAPL is allowed for connection testing. Request no more than three symbols."
         }, 400, origin, allowed);
+      }
+
+      // Separate rate windows keep SEC research requests from blocking market
+      // requests. Alpha Vantage's upstream free-tier quota is enforced separately.
+      if (rateLimited(request, "market", 12)) {
+        return json({
+          ok: false,
+          error: "Meridian temporarily paused repeated market requests from this connection. Wait one minute and retry once. This is Meridian's short-term limit, not a paid-plan notice."
+        }, 429, origin, allowed);
       }
 
       const quotes = [];
@@ -327,8 +340,8 @@ a{color:#9bd8ff}small{color:#91a0b8}
       return json({ ok: false, error: "Endpoint not found. Use /api/health, /api/market, or /api/company?query=MSFT." }, 404, origin, allowed);
     }
 
-    if (rateLimited(request)) {
-      return json({ ok: false, error: "This bridge allows up to 12 research requests per minute per edge instance. Please wait a minute and try again." }, 429, origin, allowed);
+    if (rateLimited(request, "sec-research", 12)) {
+      return json({ ok: false, error: "This bridge allows up to 12 SEC research requests per minute per connection. Please wait a minute and try again." }, 429, origin, allowed);
     }
 
     if (!(env.SEC_USER_AGENT || "").trim()) {
