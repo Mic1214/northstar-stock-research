@@ -60,6 +60,75 @@ async function secJson(url, env) {
   return response.json();
 }
 
+const MARKET_ALLOWED_SYMBOLS = new Set(["SPY", "QQQ", "DIA", "AAPL"]);
+
+async function marketStackQuote(symbol, env) {
+  const apiKey = (env.MARKETSTACK_API_KEY || "").trim();
+  if (!apiKey) {
+    const error = new Error("Market data is not configured yet. Add MARKETSTACK_API_KEY as a secret on the Cloudflare Worker.");
+    error.status = 503;
+    throw error;
+  }
+
+  const endpoint = new URL("https://api.marketstack.com/v2/tickers/" + encodeURIComponent(symbol) + "/eod/latest");
+  endpoint.searchParams.set("access_key", apiKey);
+
+  const response = await fetch(endpoint.toString(), {
+    headers: { "Accept": "application/json" },
+    // Marketstack's free feed is end-of-day. Cache each symbol for 24 hours
+    // so repeat visits do not rapidly consume the small monthly request quota.
+    cf: { cacheTtl: 86400, cacheEverything: true }
+  });
+
+  let payload;
+  try {
+    payload = await response.json();
+  } catch (error) {
+    payload = {};
+  }
+
+  if (!response.ok || (payload && payload.error)) {
+    const providerError = payload && payload.error;
+    let message = providerError && (providerError.message || providerError.info);
+    if (!message) {
+      message = response.status === 429
+        ? "Marketstack rate limit reached. Please try again later."
+        : "Marketstack did not return a valid quote. Check the API key, endpoint access, and plan limits.";
+    }
+    const error = new Error(String(message).slice(0, 240));
+    error.status = response.status === 429 ? 429 : 502;
+    throw error;
+  }
+
+  let record = payload && payload.data ? payload.data : payload;
+  if (Array.isArray(record)) record = record[0];
+  if (record && Array.isArray(record.data)) record = record.data[0];
+  else if (record && record.data && typeof record.data === "object") record = record.data;
+
+  const close = Number(record && (record.close ?? record.adj_close));
+  const openValue = Number(record && record.open);
+  if (!record || !Number.isFinite(close) || close <= 0) {
+    const error = new Error("Marketstack did not return an end-of-day closing price for " + symbol + ". The symbol may not be available on the current plan.");
+    error.status = 502;
+    throw error;
+  }
+
+  const open = Number.isFinite(openValue) && openValue > 0 ? openValue : null;
+  const changeFromOpenPct = open === null ? null : ((close - open) / open) * 100;
+  return {
+    symbol: String(record.symbol || symbol).toUpperCase(),
+    date: record.date || record.datetime || null,
+    exchange: record.exchange || record.mic || null,
+    open,
+    high: Number.isFinite(Number(record.high)) ? Number(record.high) : null,
+    low: Number.isFinite(Number(record.low)) ? Number(record.low) : null,
+    close,
+    volume: Number.isFinite(Number(record.volume)) ? Number(record.volume) : null,
+    changeFromOpenPct,
+    changeLabel: "close vs. open"
+  };
+}
+
 function normalizeName(value) {
   return String(value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 }
@@ -126,6 +195,9 @@ export default {
       const statusText = secIdentityConfigured
         ? "SEC contact setting: configured"
         : "SEC contact setting: not configured yet";
+      const marketStatusText = (env.MARKETSTACK_API_KEY || "").trim()
+        ? "Marketstack data key: configured"
+        : "Marketstack data key: not configured yet";
       const html = `<!doctype html>
 <html lang="en">
 <head>
@@ -142,8 +214,9 @@ h1{font-size:26px;margin:0 0 8px}p{color:#b9c6dc} .status{padding:12px;border:1p
 <h1>Meridian SEC Bridge</h1>
 <p>If you can read this page, the Worker is responding.</p>
 <p class="status">${statusText}</p>
-<p>Next, open <a href="/api/health">/api/health</a> to view the machine-readable connection status.</p>
-<p>This service retrieves public company information from SEC filings. It does not provide stock prices.</p>
+<p class="status">${marketStatusText}</p>
+<p>Open <a href="/api/health">/api/health</a> for machine-readable status, or <a href="/api/market">/api/market</a> to test the end-of-day market feed.</p>
+<p>Market prices are end-of-day only on the free provider tier, not live intraday quotes.</p>
 </main></body></html>`;
       return new Response(html, {
         status: 200,
@@ -158,10 +231,11 @@ h1{font-size:26px;margin:0 0 8px}p{color:#b9c6dc} .status{padding:12px;border:1p
     if (url.pathname === "/api/health") {
       const health = {
         ok: true,
-        service: "Meridian SEC research bridge",
-        build: "27e3c9e",
+        service: "Meridian data bridge",
+        build: "market-eod-2026-10-24",
         configured: secIdentityConfigured,
-        message: secIdentityConfigured ? "SEC request identity is configured." : "Set SEC_USER_AGENT before requesting data."
+        marketConfigured: Boolean((env.MARKETSTACK_API_KEY || "").trim()),
+        message: secIdentityConfigured ? "SEC request identity is configured." : "Set SEC_USER_AGENT before requesting SEC data."
       };
       const accept = request.headers.get("Accept") || "";
       if (accept.includes("text/html") && !accept.includes("application/json")) {
@@ -176,7 +250,7 @@ a{color:#9bd8ff}small{color:#91a0b8}
 </style></head><body><main><h1>Meridian SEC Bridge</h1>
 <p class="status">Worker response: <strong>OK</strong></p>
 <p>SEC contact setting: <strong>${configuredLabel}</strong></p>
-<p>Build: <code>27e3c9e</code></p>
+<p>Build: <code>market-eod-2026-10-24</code></p>
 <p><a href="/">Open bridge homepage</a> · <a href="/api/health?format=json">Request JSON status</a></p>
 <small>This bridge retrieves public SEC company information and does not provide stock prices.</small>
 </main></body></html>`;
@@ -193,8 +267,55 @@ a{color:#9bd8ff}small{color:#91a0b8}
       return json(health, 200, origin, allowed);
     }
 
+    if (url.pathname === "/api/market") {
+      if (rateLimited(request)) {
+        return json({ ok: false, error: "Too many market-data requests in a short period. Please wait a minute and try again." }, 429, origin, allowed);
+      }
+
+      if (!(env.MARKETSTACK_API_KEY || "").trim()) {
+        return json({
+          ok: false,
+          configured: false,
+          provider: "Marketstack",
+          error: "Market data is not configured yet. Add MARKETSTACK_API_KEY as a Cloudflare Worker secret."
+        }, 503, origin, allowed);
+      }
+
+      const rawSymbols = (url.searchParams.get("symbols") || "SPY,QQQ,DIA")
+        .split(",").map(value => value.trim().toUpperCase()).filter(Boolean);
+      const symbols = Array.from(new Set(rawSymbols));
+      if (!symbols.length || symbols.length > 3 || symbols.some(symbol => !MARKET_ALLOWED_SYMBOLS.has(symbol))) {
+        return json({
+          ok: false,
+          error: "For now, the market snapshot supports SPY, QQQ, and DIA. AAPL is allowed for connection testing. Request no more than three symbols."
+        }, 400, origin, allowed);
+      }
+
+      const quotes = [];
+      const errors = [];
+      for (const symbol of symbols) {
+        try {
+          quotes.push(await marketStackQuote(symbol, env));
+        } catch (error) {
+          errors.push({ symbol, error: error.message });
+        }
+      }
+
+      return json({
+        ok: quotes.length > 0,
+        configured: true,
+        provider: "Marketstack",
+        dataType: "End-of-day closing data",
+        checkedAt: new Date().toISOString(),
+        source: "https://marketstack.com/",
+        quotes,
+        errors,
+        disclaimer: "These are the latest available end-of-day quotes, not live intraday prices. SPY, QQQ, and DIA are ETF proxies, not official index values. Close-vs-open movement is not the same as change from the previous close."
+      }, quotes.length > 0 ? 200 : 502, origin, allowed);
+    }
+
     if (!["/api/company", "/api/facts"].includes(url.pathname)) {
-      return json({ ok: false, error: "Endpoint not found. Use /api/health or /api/company?query=MSFT." }, 404, origin, allowed);
+      return json({ ok: false, error: "Endpoint not found. Use /api/health, /api/market, or /api/company?query=MSFT." }, 404, origin, allowed);
     }
 
     if (rateLimited(request)) {
