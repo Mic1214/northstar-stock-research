@@ -316,7 +316,7 @@ a{color:#9bd8ff}small{color:#91a0b8}
         provider: "Alpha Vantage",
         dataType: "End-of-day quote data",
         checkedAt: new Date().toISOString(),
-        source: "https://Alpha Vantage.com/",
+        source: "https://www.alphavantage.co/",
         quotes,
         errors,
         disclaimer: "These are the latest available end-of-day quotes, not live intraday prices. SPY, QQQ, and DIA are ETF proxies, not official index values. Daily movement is measured against the previous close."
