@@ -81,15 +81,32 @@ async function alphaVantageQuote(symbol, env) {
     throw error;
   }
 
+  // Cache only validated, usable quotes. Do not cache provider limit/error
+  // messages, which could otherwise persist after the daily quota resets.
+  const cacheKey = new Request(
+    "https://meridian-sec-data.micahnorris.workers.dev/__cache/market/" + encodeURIComponent(symbol)
+  );
+  try {
+    const cachedResponse = await caches.default.match(cacheKey);
+    if (cachedResponse) {
+      const cachedQuote = await cachedResponse.json();
+      if (cachedQuote && cachedQuote.symbol === symbol && Number.isFinite(Number(cachedQuote.close))) {
+        return cachedQuote;
+      }
+    }
+  } catch (error) {
+    // Cache is an optimization; a cache miss/failure should not block the feed.
+  }
+
   const endpoint = new URL("https://www.alphavantage.co/query");
   endpoint.searchParams.set("function", "GLOBAL_QUOTE");
   endpoint.searchParams.set("symbol", symbol);
   endpoint.searchParams.set("apikey", apiKey);
 
+  // Avoid caching the provider's raw response here: Alpha Vantage may return
+  // an informational/quota message instead of quote data.
   const response = await fetch(endpoint.toString(), {
-    headers: { "Accept": "application/json" },
-    // Cache each quote for a day; free Alpha Vantage keys have a strict daily cap.
-    cf: { cacheTtl: 86400, cacheEverything: true }
+    headers: { "Accept": "application/json" }
   });
 
   let payload = {};
@@ -101,11 +118,16 @@ async function alphaVantageQuote(symbol, env) {
 
   const providerMessage = payload["Error Message"] || payload.Note || payload.Information;
   if (!response.ok || providerMessage) {
-    const message = String(providerMessage || (response.status === 429
-      ? "Alpha Vantage rate limit reached. Try again tomorrow; this integration uses only the free tier."
-      : "Alpha Vantage did not return a valid quote. Check the key and free-tier availability."));
-    const error = new Error(message.slice(0, 260));
-    error.status = /rate limit|25 requests per day|call frequency/i.test(message) ? 429 : (response.status >= 500 ? 502 : 400);
+    const providerText = String(providerMessage || "");
+    const dailyLimit = /25 requests per day|standard API (?:call )?frequency|daily rate limit|requests per day|call frequency|rate limit/i.test(providerText);
+    const invalidKey = /invalid.*API key|API key.*invalid|invalid.*apikey/i.test(providerText);
+    const message = dailyLimit
+      ? "Alpha Vantage's free daily request allowance may have been reached (25 requests/day). No paid plan is required; wait for the provider's limit to reset before testing again."
+      : (invalidKey
+        ? "Alpha Vantage rejected the API key. Check that ALPHA_VANTAGE_API_KEY contains the actual key from your Alpha Vantage account."
+        : "Alpha Vantage returned no usable quote. Check the API key and free-tier availability, then try again later.");
+    const error = new Error(message);
+    error.status = dailyLimit ? 429 : (response.status >= 500 ? 502 : 400);
     throw error;
   }
 
@@ -129,7 +151,7 @@ async function alphaVantageQuote(symbol, env) {
     ? reportedChange
     : (previousClose && previousClose > 0 ? ((price - previousClose) / previousClose) * 100 : null);
 
-  return {
+  const quote = {
     symbol: String(record["01. symbol"] || symbol).toUpperCase(),
     date: record["07. latest trading day"] || null,
     exchange: null,
@@ -142,6 +164,21 @@ async function alphaVantageQuote(symbol, env) {
     changeFromPrevClosePct,
     changeLabel: "vs. prior close"
   };
+
+  // Save only a good, normalized quote for 24 hours. Never persist provider
+  // errors or any message that might echo the API key.
+  try {
+    await caches.default.put(cacheKey, new Response(JSON.stringify(quote), {
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        "Cache-Control": "public, max-age=86400"
+      }
+    }));
+  } catch (error) {
+    // A failed cache write should not make a valid quote fail.
+  }
+
+  return quote;
 }
 
 function normalizeName(value) {
@@ -319,9 +356,16 @@ a{color:#9bd8ff}small{color:#91a0b8}
         try {
           quotes.push(await alphaVantageQuote(symbol, env));
         } catch (error) {
-          errors.push({ symbol, error: error.message });
+          errors.push({ symbol, error: error.message, status: Number.isInteger(error.status) ? error.status : null });
+          // A daily quota response applies to the whole provider key. Do not
+          // spend more calls trying the remaining symbols in this snapshot.
+          if (error.status === 429) break;
         }
       }
+
+      const responseStatus = quotes.length > 0
+        ? 200
+        : (errors.some(item => item.status === 429) ? 429 : 502);
 
       return json({
         ok: quotes.length > 0,
@@ -333,7 +377,7 @@ a{color:#9bd8ff}small{color:#91a0b8}
         quotes,
         errors,
         disclaimer: "These are the latest available end-of-day quotes, not live intraday prices. SPY, QQQ, and DIA are ETF proxies, not official index values. Daily movement is measured against the previous close."
-      }, quotes.length > 0 ? 200 : 502, origin, allowed);
+      }, responseStatus, origin, allowed);
     }
 
     if (!["/api/company", "/api/facts"].includes(url.pathname)) {
