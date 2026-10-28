@@ -1,7 +1,6 @@
 const pages = {
   overview: "Market Overview",
   research: "Stock Research",
-  analysis: "Analysis Lab",
   learning: "Learning Center",
   reports: "Daily Report",
   settings: "Settings"
@@ -29,7 +28,18 @@ document.querySelectorAll("[data-page]").forEach(function(button) {
   button.addEventListener("click", function() { showPage(button.dataset.page); });
 });
 document.querySelectorAll("[data-goto]").forEach(function(button) {
-  button.addEventListener("click", function() { showPage(button.dataset.goto); });
+  button.addEventListener("click", function() {
+    const page = button.dataset.goto;
+    showPage(page);
+    const targetId = button.dataset.scrollTo;
+    if (!targetId || !pages[page]) return;
+    window.setTimeout(function() {
+      const target = document.getElementById(targetId);
+      if (target && target.closest(".page.active")) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 180);
+  });
 });
 
 const date = new Date();
