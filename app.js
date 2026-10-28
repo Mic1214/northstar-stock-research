@@ -3,7 +3,6 @@ const pages = {
   research: "Stock Research",
   analysis: "Analysis Lab",
   learning: "Learning Center",
-  portfolio: "Portfolio",
   reports: "Daily Report",
   settings: "Settings"
 };
