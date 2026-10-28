@@ -33,7 +33,6 @@
       <nav class="nav" aria-label="Main navigation">
         <button class="nav-item active" data-page="overview"><span class="nav-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-home"></use></svg></span> Market Overview</button>
         <button class="nav-item" data-page="research"><span class="nav-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-research"></use></svg></span> Stock Research</button>
-        <button class="nav-item" data-page="analysis"><span class="nav-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-analysis"></use></svg></span> Analysis Lab</button>
         <button class="nav-item" data-page="learning"><span class="nav-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-learning"></use></svg></span> Learning Center</button>
         <button class="nav-item" data-page="reports"><span class="nav-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-report"></use></svg></span> Daily Report</button>
         <button class="nav-item" data-page="settings"><span class="nav-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-settings"></use></svg></span> Settings</button>
@@ -75,7 +74,7 @@
         <div class="section-heading"><div><h2>Start with the essentials</h2><p class="muted">Choose an area to explore. Features will be built and tested one at a time.</p></div></div>
         <div class="feature-grid">
           <button class="feature-card" data-goto="research"><span class="feature-icon blue"><svg class="feature-svg" viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-research"></use></svg></span><strong>Research a company</strong><p>Look up a company and review its business, financials, and risks.</p><span class="feature-link">Open Stock Research →</span></button>
-          <button class="feature-card" data-goto="analysis"><span class="feature-icon purple"><svg class="feature-svg" viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-analysis"></use></svg></span><strong>Fundamental Stock Checklist</strong><p>Use your core 42-point system to review business quality, growth, financial strength, valuation, and market sponsorship.</p><span class="feature-link">Start company review →</span></button>
+          <button class="feature-card" data-goto="learning" data-scroll-to="learning-checklist"><span class="feature-icon purple"><svg class="feature-svg" viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-research"></use></svg></span><strong>Fundamental Stock Checklist</strong><p>Practice what you learn with your 42-point guide to business quality, growth, financial strength, valuation, and market sponsorship.</p><span class="feature-link">Open checklist →</span></button>
           <button class="feature-card learning-feature-card" data-goto="learning"><span class="feature-icon teal"><svg class="feature-svg" viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-learning"></use></svg></span><strong>Start learning</strong><p>Build your investing knowledge with short, guided lessons and progress tracking.</p><span class="feature-link">Start lessons →</span></button>
         </div>
         <div class="panel build-roadmap">
@@ -102,92 +101,15 @@
           <article class="panel"><h2>Evidence rules</h2><p class="muted">Every factual claim should eventually link to its source and show when the information was checked. Estimates and possible explanations must be labeled separately from confirmed facts.</p><div class="tag-row"><span class="tag">Source links</span><span class="tag">Dates</span><span class="tag">Uncertainty</span></div></article>
         </div>
       </section>
-      <section class="page" id="page-analysis">
-        <div class="page-heading">
-          <div>
-            <p class="eyebrow">MERIDIAN'S CORE FRAMEWORK</p>
-            <h1>Fundamental Stock Checklist</h1>
-            <p class="subheading">Your primary system for analyzing business quality, growth, financial strength, valuation, and market sponsorship.</p>
-          </div>
-        </div>
-        <div class="notice">
-          <span class="notice-icon">i</span>
-          <div>
-            <strong>This is Meridian's main company-analysis system.</strong>
-            <p>The checklist has 42 criteria. A confirmed pass earns one point. A criterion that is not yet verified remains open, and the overall label stays provisional until all 42 have been reviewed.</p>
-          </div>
-        </div>
-        <div class="panel fundamental-start-panel">
-          <div class="section-heading">
-            <h2>Choose a company</h2>
-            <p class="muted">Each company's answers and evidence notes are saved locally in this browser. They are not sent to Meridian's server.</p>
-          </div>
-          <div class="fundamental-company-bar">
-            <div class="fundamental-company-field">
-              <label for="fundamental-company">Company name or ticker</label>
-              <input id="fundamental-company" type="text" maxlength="100" autocomplete="off" placeholder="Example: MSFT or Microsoft">
-            </div>
-            <button type="button" id="fundamental-load" class="primary-button">Load / start checklist</button>
-            <button type="button" id="fundamental-reset" class="secondary-button" hidden>Reset review</button>
-          </div>
-          <p class="muted small" id="fundamental-status" role="status" aria-live="polite">Enter a company name or ticker, then choose Load / start checklist.</p>
-        </div>
-
-        <div id="fundamental-review" hidden>
-          <div class="panel fundamental-score-panel">
-            <div class="fundamental-score-heading">
-              <div>
-                <p class="eyebrow">CURRENT REVIEW</p>
-                <h2 id="fundamental-active-company">Company</h2>
-                <p class="muted small">One point for each pass · maximum 42 points</p>
-              </div>
-              <span class="tag" id="fundamental-save-state">Saved in this browser</span>
-            </div>
-            <div class="fundamental-stats">
-              <div class="fundamental-stat-card"><span>Passes</span><strong id="fundamental-passes">0 / 42</strong></div>
-              <div class="fundamental-stat-card"><span>Not met</span><strong id="fundamental-not-met">0</strong></div>
-              <div class="fundamental-stat-card"><span>Not verified</span><strong id="fundamental-unreviewed">42</strong></div>
-              <div class="fundamental-stat-card"><span>Reviewed</span><strong id="fundamental-reviewed">0 / 42</strong></div>
-            </div>
-            <div class="fundamental-progress-track" id="fundamental-progress" role="progressbar" aria-label="Checklist criteria reviewed" aria-valuemin="0" aria-valuemax="42" aria-valuenow="0"><div id="fundamental-progress-fill"></div></div>
-            <p id="fundamental-rating" class="fundamental-rating" aria-live="polite">Provisional — review the checks and record evidence before assigning a result.</p>
-            <p id="fundamental-score-range" class="muted small">Potential pass-count range: 0–42 until checks are reviewed.</p>
-          </div>
-
-          <div class="fundamental-checklist-intro">
-            <h2>42-point company review</h2>
-            <p class="muted">For each criterion, choose Pass, Not met, or Not yet verified. Open “Meaning and how to check” for plain-language guidance from the supplied glossary. Add evidence, dates, and source links where you can. This follows your Fundamental Stock Checklist as Meridian's primary analysis system.</p>
-          </div>
-          <div id="fundamental-sections" class="fundamental-sections"></div>
-
-          <details class="panel fundamental-rubric">
-            <summary>Official scoring bands from the Fundamental Stock Checklist</summary>
-            <div class="fundamental-rubric-grid">
-              <div><strong>37–42 passes</strong><span>Elite Opportunity</span></div>
-              <div><strong>31–36 passes</strong><span>Strong Buy</span></div>
-              <div><strong>26–30 passes</strong><span>Buy / Watchlist</span></div>
-              <div><strong>25 passes</strong><span>Minimum Pass / Speculative</span></div>
-              <div><strong>Below 25 passes</strong><span>Fail / Avoid</span></div>
-            </div>
-            <p class="muted small">Meridian will only show a final band after every criterion has a decision. The label summarizes your checklist result; it does not predict returns or guarantee that a stock is suitable.</p>
-          </details>
-
-          <details class="panel fundamental-limitations">
-            <summary>Important limitations and evidence rules</summary>
-            <ul>
-              <li>Some checks need data that SEC filings alone may not provide, including analyst estimates and price targets, peer comparisons, institutional ownership trends, and distribution days.</li>
-              <li>Record the source and date in evidence notes. Do not treat an assumption, an old estimate, or unavailable information as a confirmed pass.</li>
-              <li>Not yet verified is distinct from Not met. It keeps the final label provisional until the evidence has been checked.</li>
-              <li>This is an educational research framework, not personalized financial advice. It helps organize investigation; it cannot guarantee a profitable result.</li>
-            </ul>
-          </details>
-        </div>
-      </section>
       <section class="page" id="page-learning">
         <div class="page-heading"><div><p class="eyebrow">BUILD YOUR KNOWLEDGE</p><h1>Learning Center</h1><p class="subheading">Short, source-linked lessons. Learn the concepts before using them to evaluate evidence.</p></div></div>
         <div class="panel learning-progress">
           <div class="progress-topline"><div><span class="eyebrow">YOUR LEARNING PATH</span><h2>Progress at your own pace</h2><p class="muted">Your completion marks stay in this browser on this device.</p></div><div class="progress-actions"><strong id="learning-progress-text" aria-live="polite">0 of 18 lessons completed</strong><button type="button" class="primary-button start-lessons-button" id="start-lessons-button">Start lessons <span aria-hidden="true">→</span></button></div></div>
           <div class="progress-track" role="progressbar" aria-label="Learning progress" aria-valuemin="0" aria-valuemax="18" aria-valuenow="0" id="learning-progressbar"><div class="progress-fill" id="learning-progress-fill"></div></div>
+        </div>
+        <div class="panel learning-checklist-promo">
+          <div><p class="eyebrow">PUT KNOWLEDGE INTO PRACTICE</p><h2>42-point Fundamental Stock Checklist</h2><p class="muted">Review a company using the same 42 criteria, save evidence notes, and track what you have verified. Reviews are saved in this browser on this device.</p></div>
+          <button type="button" class="primary-button" data-goto="learning" data-scroll-to="learning-checklist">Open checklist <span aria-hidden="true">→</span></button>
         </div>
         <div class="learning-tools">
           <label class="lesson-search-label" for="lesson-search">Find a lesson</label>
@@ -331,6 +253,87 @@
             <div class="lesson-footer"><a class="lesson-source" href="https://www.sec.gov/investor/pubs/begfinstmtguide.htm" target="_blank" rel="noopener noreferrer">SEC: Financial statements guide ↗</a><button class="lesson-start-button" type="button">Start lesson</button><button class="lesson-complete" type="button" data-complete="source-check" aria-pressed="false">Mark complete</button></div>
           </article>
         </div>
+        <section class="learning-checklist-section" id="learning-checklist" aria-labelledby="learning-checklist-title">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">APPLY WHAT YOU LEARN</p>
+            <h1 id="learning-checklist-title">Fundamental Stock Checklist</h1>
+            <p class="subheading">Use these 42 research checks to practice evaluating business quality, growth, financial strength, valuation, and market sponsorship.</p>
+          </div>
+        </div>
+        <div class="notice">
+          <span class="notice-icon">i</span>
+          <div>
+            <strong>Use this checklist to organize your company research.</strong>
+            <p>The checklist has 42 criteria. A confirmed pass earns one point. A criterion that is not yet verified remains open, and the overall label stays provisional until all 42 have been reviewed.</p>
+          </div>
+        </div>
+        <div class="panel fundamental-start-panel">
+          <div class="section-heading">
+            <h2>Choose a company</h2>
+            <p class="muted">Each company's answers and evidence notes are saved locally in this browser. They are not sent to Meridian's server.</p>
+          </div>
+          <div class="fundamental-company-bar">
+            <div class="fundamental-company-field">
+              <label for="fundamental-company">Company name or ticker</label>
+              <input id="fundamental-company" type="text" maxlength="100" autocomplete="off" placeholder="Example: MSFT or Microsoft">
+            </div>
+            <button type="button" id="fundamental-load" class="primary-button">Load / start checklist</button>
+            <button type="button" id="fundamental-reset" class="secondary-button" hidden>Reset review</button>
+          </div>
+          <p class="muted small" id="fundamental-status" role="status" aria-live="polite">Enter a company name or ticker, then choose Load / start checklist.</p>
+        </div>
+
+        <div id="fundamental-review" hidden>
+          <div class="panel fundamental-score-panel">
+            <div class="fundamental-score-heading">
+              <div>
+                <p class="eyebrow">CURRENT REVIEW</p>
+                <h2 id="fundamental-active-company">Company</h2>
+                <p class="muted small">One point for each pass · maximum 42 points</p>
+              </div>
+              <span class="tag" id="fundamental-save-state">Saved in this browser</span>
+            </div>
+            <div class="fundamental-stats">
+              <div class="fundamental-stat-card"><span>Passes</span><strong id="fundamental-passes">0 / 42</strong></div>
+              <div class="fundamental-stat-card"><span>Not met</span><strong id="fundamental-not-met">0</strong></div>
+              <div class="fundamental-stat-card"><span>Not verified</span><strong id="fundamental-unreviewed">42</strong></div>
+              <div class="fundamental-stat-card"><span>Reviewed</span><strong id="fundamental-reviewed">0 / 42</strong></div>
+            </div>
+            <div class="fundamental-progress-track" id="fundamental-progress" role="progressbar" aria-label="Checklist criteria reviewed" aria-valuemin="0" aria-valuemax="42" aria-valuenow="0"><div id="fundamental-progress-fill"></div></div>
+            <p id="fundamental-rating" class="fundamental-rating" aria-live="polite">Provisional — review the checks and record evidence before assigning a result.</p>
+            <p id="fundamental-score-range" class="muted small">Potential pass-count range: 0–42 until checks are reviewed.</p>
+          </div>
+
+          <div class="fundamental-checklist-intro">
+            <h2>42-point company review</h2>
+            <p class="muted">For each criterion, choose Pass, Not met, or Not yet verified. Open “Meaning and how to check” for plain-language guidance from the supplied glossary. Add evidence, dates, and source links where you can. Use it as a repeatable learning exercise. Record evidence and sources instead of treating the checklist as an automatic recommendation.</p>
+          </div>
+          <div id="fundamental-sections" class="fundamental-sections"></div>
+
+          <details class="panel fundamental-rubric">
+            <summary>Official scoring bands from the Fundamental Stock Checklist</summary>
+            <div class="fundamental-rubric-grid">
+              <div><strong>37–42 passes</strong><span>Elite Opportunity</span></div>
+              <div><strong>31–36 passes</strong><span>Strong Buy</span></div>
+              <div><strong>26–30 passes</strong><span>Buy / Watchlist</span></div>
+              <div><strong>25 passes</strong><span>Minimum Pass / Speculative</span></div>
+              <div><strong>Below 25 passes</strong><span>Fail / Avoid</span></div>
+            </div>
+            <p class="muted small">Meridian will only show a final band after every criterion has a decision. The label summarizes your checklist result; it does not predict returns or guarantee that a stock is suitable.</p>
+          </details>
+
+          <details class="panel fundamental-limitations">
+            <summary>Important limitations and evidence rules</summary>
+            <ul>
+              <li>Some checks need data that SEC filings alone may not provide, including analyst estimates and price targets, peer comparisons, institutional ownership trends, and distribution days.</li>
+              <li>Record the source and date in evidence notes. Do not treat an assumption, an old estimate, or unavailable information as a confirmed pass.</li>
+              <li>Not yet verified is distinct from Not met. It keeps the final label provisional until the evidence has been checked.</li>
+              <li>This is an educational research framework, not personalized financial advice. It helps organize investigation; it cannot guarantee a profitable result.</li>
+            </ul>
+          </details>
+        </div>
+        </section>
         <div class="panel learning-source-panel">
           <div><h2>Keep learning from primary sources</h2><p class="muted">These free public resources explain the fundamentals. Meridian lessons summarize concepts; the original source remains the place to verify details.</p></div>
           <div class="source-links"><a href="https://www.investor.gov/introduction-investing" target="_blank" rel="noopener noreferrer">Investor.gov — investing basics ↗</a><a href="https://www.sec.gov/investor/pubs/begfinstmtguide.htm" target="_blank" rel="noopener noreferrer">SEC — financial statements ↗</a><a href="https://www.bls.gov/cpi/" target="_blank" rel="noopener noreferrer">BLS — inflation and CPI ↗</a></div>
