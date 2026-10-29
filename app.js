@@ -624,20 +624,31 @@ const FUNDAMENTAL_SECTIONS = [
     const monthly = Number(document.getElementById("monthly-contribution").value);
     const annualRate = Number(document.getElementById("annual-rate").value);
     const years = Number(document.getElementById("growth-years").value);
-    const valid = [initial, monthly, annualRate, years].every(Number.isFinite)
+    const compoundsPerYear = Number(document.getElementById("compounding-frequency").value);
+    const validFrequencies = [1, 2, 4, 12, 365];
+    const valid = [initial, monthly, annualRate, years, compoundsPerYear].every(Number.isFinite)
       && initial >= 0 && monthly >= 0 && annualRate >= 0 && annualRate <= 50
-      && years >= 1 && years <= 80 && Number.isInteger(years);
+      && years >= 1 && years <= 80 && Number.isInteger(years)
+      && validFrequencies.includes(compoundsPerYear);
     if (!valid) {
-      results.textContent = "Check the values and enter non-negative amounts, an annual rate from 0% to 50%, and 1–80 whole years.";
+      results.textContent = "Check the values and enter non-negative amounts, an annual rate from 0% to 50%, 1–80 whole years, and a valid compounding frequency.";
       return;
     }
-    const months = years * 12;
-    const monthlyRate = annualRate / 100 / 12;
-    const factor = Math.pow(1 + monthlyRate, months);
+
+    // Monthly contributions are combined into each selected compounding period.
+    // Contributions are added at period-end, matching the ordinary-annuity model
+    // commonly used by compound-interest calculators such as Investor.gov.
+    const periods = years * compoundsPerYear;
+    const periodRate = annualRate / 100 / compoundsPerYear;
+    const contributionPerPeriod = monthly * 12 / compoundsPerYear;
+    const factor = Math.pow(1 + periodRate, periods);
     const futureInitial = initial * factor;
-    const futureMonthly = monthlyRate === 0 ? monthly * months : monthly * ((factor - 1) / monthlyRate);
-    const projected = futureInitial + futureMonthly;
-    const contributed = initial + monthly * months;
+    const futureContributions = periodRate === 0
+      ? monthly * years * 12
+      : contributionPerPeriod * ((factor - 1) / periodRate);
+    const projected = futureInitial + futureContributions;
+    const contributed = initial + monthly * years * 12;
+    const frequencyLabels = { 1: "Annually", 2: "Semiannually", 4: "Quarterly", 12: "Monthly", 365: "Daily" };
     const resultsGrid = document.createElement("div");
     resultsGrid.className = "tool-results-grid";
     [["Estimated future value", money(projected)],["Total contributions", money(contributed)],["Estimated growth", money(projected-contributed)]].forEach(function(item,index) {
@@ -650,7 +661,10 @@ const FUNDAMENTAL_SECTIONS = [
       card.append(label,value);
       resultsGrid.append(card);
     });
-    results.replaceChildren(resultsGrid);
+    const assumptions = document.createElement("p");
+    assumptions.className = "muted small compound-assumptions";
+    assumptions.textContent = "Compounded " + frequencyLabels[compoundsPerYear].toLowerCase() + "; contributions added at the end of each compounding period.";
+    results.replaceChildren(resultsGrid, assumptions);
   });
 })();
 
