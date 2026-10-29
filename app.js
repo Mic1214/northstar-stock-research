@@ -650,7 +650,7 @@ const FUNDAMENTAL_SECTIONS = [
     const contributed = initial + monthly * years * 12;
     const frequencyLabels = { 1: "Annually", 2: "Semiannually", 4: "Quarterly", 12: "Monthly", 365: "Daily" };
     const resultsGrid = document.createElement("div");
-    resultsGrid.className = "tool-results-grid";
+    resultsGrid.className = "tool-results-grid compound-results-grid";
     [["Estimated future value", money(projected)],["Total contributions", money(contributed)],["Estimated growth", money(projected-contributed)]].forEach(function(item,index) {
       const card = document.createElement("div");
       card.className = "tool-result-card" + (index === 0 ? " primary-result" : "");
