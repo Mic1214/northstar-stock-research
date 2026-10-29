@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0b1020">
   <meta name="description" content="Meridian is a learning-first financial research workspace.">
   <title>Meridian — Financial Research</title>
-  <link rel="stylesheet" href="styles.css?v=20261024-01">
+  <link rel="stylesheet" href="styles.css?v=20261028-financial-tabs">
 </head>
 <body>
   <svg class="svg-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><defs>
@@ -25,14 +25,17 @@
     </symbol>
 <symbol id="meridian-icon-learning" viewBox="0 0 40 40"><text x="19.5" y="38" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="27" font-weight="850" fill="url(#meridian-icon-gradient-secondary)">$</text><path d="M2.5 10 20 2.5 37.5 10 20 17.5Z" fill="url(#meridian-icon-gradient)" stroke="#c5e7ff" stroke-width=".7"/><path d="M9.5 13v3.1c5.7 3.8 15.3 3.8 21 0V13" fill="url(#meridian-icon-gradient-secondary)"/><path d="M34.2 11v6.2" stroke="var(--theme-icon-light)" stroke-width="1.5"/><circle cx="34.2" cy="18.2" r="1.8" fill="var(--theme-icon-light)"/><path d="M34.2 19.8 31.8 25h4.8Z" fill="url(#meridian-icon-gradient)"/></symbol>
 <symbol id="meridian-icon-report" viewBox="0 0 40 40"><path d="M10 4H25L33 12V33A3 3 0 0 1 30 36H10A3 3 0 0 1 7 33V7A3 3 0 0 1 10 4Z" fill="url(#meridian-icon-gradient)"/><path d="M25 4V11A2 2 0 0 0 27 13H33" fill="url(#meridian-icon-gradient-secondary)"/><path d="M13 18H27M13 23H27M13 28H22" stroke="#122445" stroke-width="2.3" stroke-linecap="round"/></symbol>
+<symbol id="meridian-icon-savings" viewBox="0 0 40 40"><rect x="4" y="10" width="32" height="25" rx="5" fill="url(#meridian-icon-gradient)" stroke="var(--theme-icon-light)" stroke-width="1.3"/><path d="M4 16H36" stroke="#122445" stroke-width="2.2"/><path d="M8 10V7.5A2.5 2.5 0 0 1 10.5 5H29" fill="none" stroke="url(#meridian-icon-gradient-secondary)" stroke-width="3" stroke-linecap="round"/><rect x="22" y="21" width="11" height="8" rx="2.2" fill="url(#meridian-icon-gradient-secondary)" stroke="#e5f4ff" stroke-width=".7"/><circle cx="25.5" cy="25" r="1.2" fill="#122445"/></symbol>
 <symbol id="meridian-icon-settings" viewBox="0 0 40 40"><g fill="url(#meridian-icon-gradient)"><rect x="16.5" y="2" width="7" height="11" rx="2.5"/><rect x="16.5" y="2" width="7" height="11" rx="2.5" transform="rotate(45 20 20)"/><rect x="16.5" y="2" width="7" height="11" rx="2.5" transform="rotate(90 20 20)"/><rect x="16.5" y="2" width="7" height="11" rx="2.5" transform="rotate(135 20 20)"/><rect x="16.5" y="2" width="7" height="11" rx="2.5" transform="rotate(180 20 20)"/><rect x="16.5" y="2" width="7" height="11" rx="2.5" transform="rotate(225 20 20)"/><rect x="16.5" y="2" width="7" height="11" rx="2.5" transform="rotate(270 20 20)"/><rect x="16.5" y="2" width="7" height="11" rx="2.5" transform="rotate(315 20 20)"/><circle cx="20" cy="20" r="11"/></g><circle cx="20" cy="20" r="4.6" fill="#101a2e" stroke="var(--theme-icon-light)" stroke-width="1.1"/></symbol>
 </defs></svg>
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand"><div class="brand-mark">M</div><div><strong>Meridian</strong><span>LEARN · PLAN · GROW</span></div></div>
       <nav class="nav" aria-label="Main navigation">
-        <button class="nav-item active" data-page="overview"><span class="nav-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-home"></use></svg></span> Market Overview</button>
+        <button class="nav-item active" data-page="home" aria-current="page"><span class="nav-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-home"></use></svg></span> Home</button>
         <button class="nav-item" data-page="learning"><span class="nav-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-learning"></use></svg></span> Learning Center</button>
+        <button class="nav-item" data-page="tools"><span class="nav-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-analysis"></use></svg></span> Financial Tools</button>
+        <button class="nav-item" data-page="savings"><span class="nav-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-savings"></use></svg></span> Savings Portfolio</button>
         <button class="nav-item" data-page="settings"><span class="nav-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-settings"></use></svg></span> Settings</button>
       </nav>
       <div class="sidebar-bottom"><div class="status-dot"></div><div><strong>Learning workspace</strong><span>Lessons and practical tools</span></div></div>
@@ -40,49 +43,20 @@
     <main class="main">
       <header class="topbar">
         <div class="mobile-brand"><div class="brand-mark">M</div><strong>Meridian</strong></div>
-        <div class="breadcrumb">Workspace <span>/</span> <strong id="crumb">Market Overview</strong></div>
+        <div class="breadcrumb">Workspace <span>/</span> <strong id="crumb">Home</strong></div>
         <div class="topbar-right"><span class="pill"><i></i> Learning mode</span></div>
       </header>
-      <section class="page active" id="page-overview">
-        <div class="page-heading"><div><p class="eyebrow">YOUR RESEARCH DESK</p><h1>Market Overview</h1><p class="subheading">A clear place to understand markets before making decisions.</p></div><div class="date-chip" id="today"></div></div>
-        <div class="notice" id="market-connection-notice"><span class="notice-icon">i</span><div><strong id="market-notice-title">Market data is not configured yet.</strong><p id="market-notice-body">Connect the Alpha Vantage key to show the latest available daily closes. This feed is end-of-day, not live intraday data.</p></div></div>
-        <div class="panel market-watch-panel" id="market-watch-panel">
-          <div class="market-watch-heading">
-            <div>
-              <h2>Market watch</h2>
-              <p class="muted">SPY, QQQ, and DIA are ETF proxies for broad U.S. market segments—not the official index values.</p>
-            </div>
-            <button type="button" id="market-refresh-button" class="secondary-button">Refresh quotes</button>
-          </div>
-          <div class="market-quote-grid" id="market-quote-grid" aria-live="polite">
-            <article class="market-quote-card"><span class="market-symbol">SPY</span><strong>Not connected</strong><small>S&P 500 ETF proxy</small></article>
-            <article class="market-quote-card"><span class="market-symbol">QQQ</span><strong>Not connected</strong><small>Nasdaq-100 ETF proxy</small></article>
-            <article class="market-quote-card"><span class="market-symbol">DIA</span><strong>Not connected</strong><small>Dow Jones ETF proxy</small></article>
-          </div>
-          <div class="market-watch-footer">
-            <p class="muted small" id="market-quotes-status" role="status">Waiting for Alpha Vantage setup.</p>
-            <a href="https://www.alphavantage.co/" target="_blank" rel="noopener noreferrer">Data provider: Alpha Vantage ↗</a>
-          </div>
-          <p class="market-data-disclaimer">Daily closing data only, not live prices. Movement compares the latest close with the previous close. SPY, QQQ, and DIA are ETF proxies rather than official index levels; prices may be stale on market holidays or before the provider publishes that day’s data.</p>
+      <section class="page active" id="page-home">
+        <div class="page-heading"><div><p class="eyebrow">YOUR FINANCIAL WORKSPACE</p><h1>Home</h1><p class="subheading">Learn about money, use practical tools, and keep your savings goals moving forward.</p></div></div>
+        <div class="panel home-intro">
+          <div><p class="eyebrow">WELCOME TO MERIDIAN</p><h2>Make your next money decision with more clarity.</h2><p class="muted">Start with a lesson, explore a calculator, or create a savings goal. Your progress is saved in this browser on this device.</p></div>
+          <span class="tag">Learn · Plan · Grow</span>
         </div>
-        <div class="stats-grid">
-          <article class="panel stat-card"><div class="card-label">Market data</div><div class="stat-value" id="market-status-value">Not configured</div><div class="muted" id="market-status-detail">Daily closing prices</div></article>
-          <article class="panel stat-card"><div class="card-label">Watchlist</div><div class="stat-value">0 companies</div><div class="muted">Add companies during a later stage</div></article>
-        </div>
-        <div class="section-heading"><div><h2>Start with the essentials</h2><p class="muted">Choose an area to explore. Features will be built and tested one at a time.</p></div></div>
-        <div class="feature-grid">
-          <button class="feature-card" data-goto="learning" data-scroll-to="learning-checklist"><span class="feature-icon purple"><svg class="feature-svg" viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-research"></use></svg></span><strong>Fundamental Stock Checklist</strong><p>Practice what you learn with your 42-point guide to business quality, growth, financial strength, valuation, and market sponsorship.</p><span class="feature-link">Open checklist →</span></button>
-          <button class="feature-card learning-feature-card" data-goto="learning"><span class="feature-icon teal"><svg class="feature-svg" viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-learning"></use></svg></span><strong>Start learning</strong><p>Build your investing knowledge with short, guided lessons and progress tracking.</p><span class="feature-link">Start lessons →</span></button>
-        </div>
-        <div class="panel build-roadmap">
-          <div class="roadmap-heading"><div><h2>Meridian roadmap</h2><p class="muted">Starting with sourced end-of-day prices, then expanding to deeper company research.</p></div><span class="tag">Stage 3 of 4</span></div>
-          <div class="roadmap-steps">
-            <div class="roadmap-step done"><span>01</span><div><strong>Core interface</strong><small>Complete</small></div></div>
-            <div class="roadmap-step done"><span>02</span><div><strong>Lessons and usability</strong><small>Complete</small></div></div>
-            <div class="roadmap-step current"><span>03</span><div><strong>Verified market and company sources</strong><small>Alpha Vantage EOD setup</small></div></div>
-            <div class="roadmap-step"><span>04</span><div><strong>Savings and planning tools</strong><small>Later stage</small></div></div>
-          </div>
-          <p class="roadmap-note">Research upgrades are beginning with official SEC filings and annual financial facts. Market prices and news remain off until a properly licensed source is configured.</p>
+        <div class="section-heading"><div><h2>Choose where to start</h2><p class="muted">Your main tools, all in one place.</p></div></div>
+        <div class="feature-grid dashboard-grid">
+          <button class="feature-card" type="button" data-goto="learning"><span class="feature-icon teal"><svg class="feature-svg" viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-learning"></use></svg></span><strong>Learning Center</strong><p>Build your knowledge with guided lessons and the 42-point Fundamental Stock Checklist.</p><span class="feature-link">Continue learning →</span></button>
+          <button class="feature-card" type="button" data-goto="tools"><span class="feature-icon purple"><svg class="feature-svg" viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-analysis"></use></svg></span><strong>Financial Tools</strong><p>Estimate compound growth and look up important money concepts in the financial glossary.</p><span class="feature-link">Explore tools →</span></button>
+          <button class="feature-card" type="button" data-goto="savings"><span class="feature-icon blue"><svg class="feature-svg" viewBox="0 0 40 40" aria-hidden="true"><use href="#meridian-icon-savings"></use></svg></span><strong>Savings Portfolio</strong><p>Set savings targets, track what you have saved, and see progress toward each goal.</p><span class="feature-link">View savings →</span></button>
         </div>
       </section>
       <section class="page" id="page-learning">
@@ -323,18 +297,72 @@
           <div class="source-links"><a href="https://www.investor.gov/introduction-investing" target="_blank" rel="noopener noreferrer">Investor.gov — investing basics ↗</a><a href="https://www.sec.gov/investor/pubs/begfinstmtguide.htm" target="_blank" rel="noopener noreferrer">SEC — financial statements ↗</a><a href="https://www.bls.gov/cpi/" target="_blank" rel="noopener noreferrer">BLS — inflation and CPI ↗</a></div>
         </div>
       </section>
-      <section class="page" id="page-settings">
-        <div class="page-heading"><div><p class="eyebrow">PERSONALIZE MERIDIAN</p><h1>Settings</h1><p class="subheading">Manage data connections and personalize your research workspace.</p></div></div>
-        <div class="panel api-settings-panel market-api-settings-panel">
-          <div class="theme-settings-heading"><div><h2>Market data connection</h2><p class="muted">Provider: Alpha Vantage. The free plan supplies end-of-day data only—not live intraday quotes. Keep the API key private in Cloudflare.</p></div><span class="tag">Daily closes</span></div>
-          <p class="muted small">The standard free allowance is 25 API requests per day. This setup uses end-of-day data, caches quotes for a day, and does not require a paid subscription. Do not upgrade to a paid plan. <a href="https://www.alphavantage.co/support/" target="_blank" rel="noopener noreferrer">Free API details ↗</a></p>
-          <p class="market-secret-instruction">After obtaining an API key, add it in Cloudflare under <strong>Workers &amp; Pages → meridian-sec-data → Settings → Variables and Secrets → Add → Secret</strong>. Set the name to <code>ALPHA_VANTAGE_API_KEY</code> and the value to your key. Do not paste the key into GitHub or this chat.</p>
-          <div class="api-settings-actions">
-            <button type="button" id="market-test-button" class="primary-button">Test market connection</button>
-            <p id="market-api-status" class="muted small" role="status" aria-live="polite">Not tested. The API key is configured as a Cloudflare Worker secret, not in Meridian's browser settings.</p>
-          </div>
-          <a class="api-setup-link" href="https://www.alphavantage.co/support/#api-key" target="_blank" rel="noopener noreferrer">Get a free Alpha Vantage API key ↗</a>
+      <section class="page" id="page-tools">
+        <div class="page-heading"><div><p class="eyebrow">PRACTICAL MONEY TOOLS</p><h1>Financial Tools</h1><p class="subheading">Explore simple calculations and clear explanations to help you understand your options.</p></div></div>
+        <div class="tool-grid">
+          <section class="panel tool-panel" aria-labelledby="compound-title">
+            <div class="tool-title-row"><div><p class="eyebrow">CALCULATOR</p><h2 id="compound-title">Compound Growth Calculator</h2></div><span class="tag">Illustrative</span></div>
+            <p class="muted tool-description">Estimate how an initial amount and regular monthly contributions might grow over time with a rate you choose.</p>
+            <form id="compound-form" class="tool-form">
+              <div class="tool-form-grid">
+                <div class="tool-field"><label for="initial-balance">Starting amount ($)</label><input id="initial-balance" type="number" min="0" max="100000000" step="0.01" value="1000" required></div>
+                <div class="tool-field"><label for="monthly-contribution">Monthly contribution ($)</label><input id="monthly-contribution" type="number" min="0" max="1000000" step="0.01" value="100" required></div>
+                <div class="tool-field"><label for="annual-rate">Assumed annual return (%)</label><input id="annual-rate" type="number" min="0" max="50" step="0.1" value="5" required></div>
+                <div class="tool-field"><label for="growth-years">Years to grow</label><input id="growth-years" type="number" min="1" max="80" step="1" value="10" required></div>
+              </div>
+              <button type="submit" class="primary-button">Calculate growth <span aria-hidden="true">→</span></button>
+            </form>
+            <div id="compound-results" class="tool-results" role="status" aria-live="polite"><p class="muted">Change the assumptions and calculate to see an estimate.</p></div>
+            <p class="muted small tool-disclaimer">This is a simplified illustration, not a forecast. Actual returns vary; fees, taxes, inflation, and changes in contributions are not included. Monthly contributions are assumed to occur at month-end.</p>
+          </section>
+          <section class="panel tool-panel glossary-panel" aria-labelledby="glossary-title">
+            <div class="tool-title-row"><div><p class="eyebrow">QUICK REFERENCE</p><h2 id="glossary-title">Financial Glossary</h2></div><span class="tag">Learn the terms</span></div>
+            <label class="glossary-search-label" for="glossary-search">Search a word or concept</label>
+            <input id="glossary-search" class="tool-input" type="search" placeholder="Try “compound interest” or “net worth”" autocomplete="off">
+            <p id="glossary-result-count" class="muted small" role="status" aria-live="polite">Showing 12 terms</p>
+            <div id="glossary-list" class="glossary-list">
+              <article class="glossary-term" data-term="asset"><h3>Asset</h3><p>Something you own that has economic value, such as cash, savings, or property.</p></article>
+              <article class="glossary-term" data-term="liability"><h3>Liability</h3><p>A debt or other financial obligation you owe.</p></article>
+              <article class="glossary-term" data-term="budget"><h3>Budget</h3><p>A plan for how income will be used for spending, saving, and other priorities over a period.</p></article>
+              <article class="glossary-term" data-term="compound interest"><h3>Compound interest</h3><p>Interest calculated on the starting amount and on interest accumulated earlier.</p></article>
+              <article class="glossary-term" data-term="diversification"><h3>Diversification</h3><p>Spreading exposure across different investments or assets so results depend less on any one of them. It does not eliminate risk.</p></article>
+              <article class="glossary-term" data-term="emergency fund"><h3>Emergency fund</h3><p>Money set aside for unexpected necessary costs or interruptions in income.</p></article>
+              <article class="glossary-term" data-term="inflation"><h3>Inflation</h3><p>A general rise in prices over time, which reduces how much a given amount of money can buy.</p></article>
+              <article class="glossary-term" data-term="liquidity"><h3>Liquidity</h3><p>How readily something can be converted to cash without a significant loss in value.</p></article>
+              <article class="glossary-term" data-term="net worth"><h3>Net worth</h3><p>The value of what you own minus what you owe: assets minus liabilities.</p></article>
+              <article class="glossary-term" data-term="principal"><h3>Principal</h3><p>The original amount invested or borrowed, before interest, gains, or losses.</p></article>
+              <article class="glossary-term" data-term="rate of return"><h3>Rate of return</h3><p>A measure of gain or loss relative to an amount invested over a given period. The calculation should state whether fees and other costs are included.</p></article>
+              <article class="glossary-term" data-term="savings rate"><h3>Savings rate</h3><p>The amount saved divided by income over the same period, using a consistent definition for both figures.</p></article>
+            </div>
+            <p id="glossary-empty" class="empty-inline muted" hidden>No terms match that search. Try a different word.</p>
+          </section>
         </div>
+      </section>
+      <section class="page" id="page-savings">
+        <div class="page-heading"><div><p class="eyebrow">YOUR SAVINGS PLAN</p><h1>Savings Portfolio</h1><p class="subheading">Organize what you are saving for and track progress toward each goal in one place.</p></div></div>
+        <div class="savings-summary-grid">
+          <article class="panel savings-summary-card"><span class="card-label">Saved so far</span><strong id="savings-total-saved">$0.00</strong><small class="muted">Across all goals</small></article>
+          <article class="panel savings-summary-card"><span class="card-label">Combined goal target</span><strong id="savings-total-target">$0.00</strong><small class="muted">Total planned amount</small></article>
+          <article class="panel savings-summary-card"><span class="card-label">Active goals</span><strong id="savings-goal-count">0</strong><small class="muted">Goals you're tracking</small></article>
+        </div>
+        <section class="panel savings-create-panel" aria-labelledby="new-goal-title">
+          <div class="tool-title-row"><div><p class="eyebrow">MAKE A PLAN</p><h2 id="new-goal-title">Create a savings goal</h2></div><span class="tag">Saved on this device</span></div>
+          <form id="savings-goal-form" class="goal-form">
+            <div class="goal-form-grid">
+              <div class="tool-field goal-name-field"><label for="goal-name">Goal name</label><input id="goal-name" type="text" maxlength="80" placeholder="e.g., Emergency fund" required></div>
+              <div class="tool-field"><label for="goal-target">Target amount ($)</label><input id="goal-target" type="number" min="0.01" max="100000000" step="0.01" placeholder="1500" required></div>
+              <div class="tool-field"><label for="goal-current">Already saved ($)</label><input id="goal-current" type="number" min="0" max="100000000" step="0.01" value="0" required></div>
+              <div class="tool-field"><label for="goal-date">Target date (optional)</label><input id="goal-date" type="date"></div>
+            </div>
+            <div class="goal-form-actions"><button type="submit" class="primary-button">Add savings goal <span aria-hidden="true">+</span></button><p id="savings-status" class="muted small" role="status" aria-live="polite">Your goals are stored in this browser on this device.</p></div>
+          </form>
+        </section>
+        <div class="section-heading savings-goals-heading"><div><h2>Your goals</h2><p class="muted">Update the saved amount as you make progress. Your goals stay in this browser's local storage.</p></div></div>
+        <div id="savings-empty-state" class="panel savings-empty-state"><div class="empty-icon" aria-hidden="true">＋</div><h2>No savings goals yet</h2><p class="muted">Create your first goal above to start building your savings portfolio.</p></div>
+        <div id="savings-goals-grid" class="savings-goals-grid"></div>
+      </section>
+      <section class="page" id="page-settings">
+        <div class="page-heading"><div><p class="eyebrow">PERSONALIZE MERIDIAN</p><h1>Settings</h1><p class="subheading">Personalize the look and feel of your workspace.</p></div></div>
         <div class="panel theme-settings-panel">
           <div class="theme-settings-heading"><div><h2>Color theme</h2><p class="muted">Your choice is saved in this browser and stays selected when you return.</p></div><span class="tag">Appearance</span></div>
           <div class="theme-options" role="group" aria-label="Choose color theme">
@@ -345,13 +373,13 @@
             <button type="button" class="theme-choice" data-theme-choice="glacier" aria-pressed="false"><span class="theme-preview theme-preview-glacier" aria-hidden="true"><i></i><i></i><i></i></span><span class="theme-choice-copy"><strong>Glacier Silver</strong><small>Icy silver with steel-blue depth</small></span><span class="theme-choice-check" aria-hidden="true">✓</span></button>
             <button type="button" class="theme-choice" data-theme-choice="violet" aria-pressed="false"><span class="theme-preview theme-preview-violet" aria-hidden="true"><i></i><i></i><i></i></span><span class="theme-choice-copy"><strong>Electric Violet</strong><small>Bright violet with cool blue highlights</small></span><span class="theme-choice-check" aria-hidden="true">✓</span></button>
           </div>
-          <p class="theme-safety-note"><span aria-hidden="true">i</span> Theme colors affect the interface only. Stock gains and losses will retain their separate green and red colors.</p>
+          <p class="theme-safety-note"><span aria-hidden="true">i</span> Theme colors affect the interface only; status and progress indicators remain distinct.</p>
         </div>
         <div class="panel theme-preview-panel"><h2>What changes?</h2><p class="muted">Navigation icons, active sections, links, buttons, focus rings, learning progress, and accent highlights follow your chosen palette. The dark background stays comfortable to read.</p><div class="theme-sample-row"><span class="theme-sample-button">Example action</span><span class="theme-sample-link">Accent text</span><span class="theme-sample-status">✓ Saved setting</span></div></div>
       </section>
-      <footer><span>Meridian · Educational research workspace</span><span>Not investment advice · Verify information before relying on it</span></footer>
+      <footer><span>Meridian · Financial learning workspace</span><span>Not investment advice · Verify information before relying on it</span></footer>
     </main>
   </div>
-  <script src="app.js?v=20261028-learning-app"></script>
+  <script src="app.js?v=20261028-financial-tabs"></script>
 </body>
 </html>
