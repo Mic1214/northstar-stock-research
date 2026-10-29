@@ -1,6 +1,8 @@
 const pages = {
-  overview: "Market Overview",
+  home: "Home",
   learning: "Learning Center",
+  tools: "Financial Tools",
+  savings: "Savings Portfolio",
   settings: "Settings"
 };
 
@@ -17,9 +19,6 @@ function showPage(page) {
   });
   document.getElementById("crumb").textContent = pages[page];
   window.scrollTo({ top: 0, behavior: "smooth" });
-  if (page === "overview" && typeof loadMarketSnapshot === "function") {
-    loadMarketSnapshot(false);
-  }
 }
 
 document.querySelectorAll("[data-page]").forEach(function(button) {
@@ -39,14 +38,6 @@ document.querySelectorAll("[data-goto]").forEach(function(button) {
     }, 180);
   });
 });
-
-const date = new Date();
-document.getElementById("today").textContent = date.toLocaleDateString(undefined, {
-  weekday: "short", month: "short", day: "numeric", year: "numeric"
-});
-
-const DEFAULT_WORKER_URL = "https://meridian-sec-data.micahnorris.workers.dev";
-function getWorkerApiBase() { return DEFAULT_WORKER_URL; }
 
 (function setupLearningCenter() {
   const grid = document.getElementById("lesson-grid");
@@ -230,244 +221,6 @@ function getWorkerApiBase() { return DEFAULT_WORKER_URL; }
     button.addEventListener("click", function() {
       applyTheme(button.dataset.themeChoice, true);
     });
-  });
-})();
-
-/* End-of-day Alpha Vantage snapshot. API secrets stay on the Worker, never in browser code. */
-const MARKET_WATCH_ITEMS = [
-  { symbol: "SPY", label: "S&P 500 ETF proxy" },
-  { symbol: "QQQ", label: "Nasdaq-100 ETF proxy" },
-  { symbol: "DIA", label: "Dow Jones ETF proxy" }
-];
-const MARKET_CACHE_KEY = "meridian-alpha-vantage-eod-snapshot-v1";
-const MARKET_BROWSER_CACHE_MS = 22 * 60 * 60 * 1000;
-let marketLoadPromise = null;
-
-function formatMarketPrice(value) {
-  if (typeof value !== "number" || !Number.isFinite(value)) return "Not available";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2
-  }).format(value);
-}
-
-function formatMarketDate(value) {
-  if (!value) return "Date not reported";
-  const datePart = String(value).slice(0, 10);
-  const date = new Date(datePart + "T12:00:00");
-  if (Number.isNaN(date.getTime())) return String(value);
-  return date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
-}
-
-function marketQuoteForSymbol(payload, symbol) {
-  const quotes = Array.isArray(payload && payload.quotes) ? payload.quotes : [];
-  return quotes.find(function(quote) { return quote.symbol === symbol; });
-}
-
-function renderMarketSnapshot(payload, options) {
-  const grid = document.getElementById("market-quote-grid");
-  const status = document.getElementById("market-quotes-status");
-  const marketStatus = document.getElementById("market-status-value");
-  const marketDetail = document.getElementById("market-status-detail");
-  const noticeTitle = document.getElementById("market-notice-title");
-  const noticeBody = document.getElementById("market-notice-body");
-  if (!grid || !status) return;
-
-  grid.replaceChildren();
-  const errors = Array.isArray(payload && payload.errors) ? payload.errors : [];
-  const quotes = Array.isArray(payload && payload.quotes) ? payload.quotes : [];
-  const configured = payload && payload.configured !== false;
-  let shown = 0;
-
-  MARKET_WATCH_ITEMS.forEach(function(item) {
-    const quote = marketQuoteForSymbol(payload, item.symbol);
-    const error = errors.find(function(row) { return row.symbol === item.symbol; });
-    const card = document.createElement("article");
-    card.className = "market-quote-card";
-    const symbol = document.createElement("span");
-    symbol.className = "market-symbol";
-    symbol.textContent = item.symbol;
-    const label = document.createElement("small");
-    label.className = "market-quote-label";
-    label.textContent = item.label;
-    const price = document.createElement("strong");
-    const meta = document.createElement("small");
-    meta.className = "market-quote-date";
-    if (quote && typeof quote.close === "number") {
-      shown += 1;
-      price.textContent = formatMarketPrice(quote.close);
-      meta.textContent = "Close · " + formatMarketDate(quote.date);
-      const move = document.createElement("span");
-      move.className = "market-move";
-      if (typeof quote.changeFromPrevClosePct === "number" && Number.isFinite(quote.changeFromPrevClosePct)) {
-        const up = quote.changeFromPrevClosePct > 0;
-        const down = quote.changeFromPrevClosePct < 0;
-        move.classList.add(up ? "market-positive" : down ? "market-negative" : "market-flat");
-        const prefix = up ? "+" : "";
-        move.textContent = prefix + quote.changeFromPrevClosePct.toFixed(2) + "% vs. prior close";
-      } else {
-        move.classList.add("market-flat");
-        move.textContent = "Session move unavailable";
-      }
-      card.append(symbol, label, price, move, meta);
-      if (typeof quote.volume === "number" && Number.isFinite(quote.volume)) {
-        const volume = document.createElement("small");
-        volume.className = "market-quote-volume";
-        volume.textContent = "Volume " + new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(quote.volume);
-        card.append(volume);
-      }
-    } else {
-      price.className = "market-quote-unavailable";
-      price.textContent = configured ? "No quote returned" : "Awaiting key";
-      meta.textContent = error && error.error ? error.error : "Set ALPHA_VANTAGE_API_KEY as a Cloudflare secret to load data.";
-      card.append(symbol, label, price, meta);
-    }
-    grid.append(card);
-  });
-
-  if (marketStatus) marketStatus.textContent = shown ? "EOD connected" : (configured ? "Unavailable" : "Not configured");
-  if (marketDetail) marketDetail.textContent = shown ? "Latest available daily closes" : "Alpha Vantage API key needed";
-
-  if (shown) {
-    if (noticeTitle) noticeTitle.textContent = "Market data is connected — daily closing prices only.";
-    if (noticeBody) noticeBody.textContent = "Prices are the latest end-of-day records available from Alpha Vantage. These ETF proxies are not official index levels, and intraday live quotes are not included.";
-    const checkedAt = payload && payload.checkedAt ? new Date(payload.checkedAt).toLocaleString() : "just now";
-    status.textContent = "Source: Alpha Vantage · checked " + checkedAt + (options && options.cached ? " · using this browser's cached snapshot." : ".");
-    if (errors.length) status.textContent += " Some symbols were unavailable: " + errors.map(function(item) { return item.symbol; }).join(", ") + ".";
-  } else {
-    if (noticeTitle) noticeTitle.textContent = configured ? "Market data could not be loaded." : "Alpha Vantage API key is not configured yet.";
-    if (noticeBody) noticeBody.textContent = configured
-      ? "Check the status below or the Market data connection panel in Settings. No placeholder prices are being shown."
-      : "After adding ALPHA_VANTAGE_API_KEY as a Cloudflare Worker secret, test the connection in Settings. Until then, no prices are shown.";
-    const firstError = errors[0] && errors[0].error;
-    status.textContent = (payload && payload.error) || firstError || "Market data is not available yet. Check the Market data connection panel in Settings.";
-  }
-}
-
-function readMarketBrowserCache() {
-  try {
-    const raw = window.localStorage.getItem(MARKET_CACHE_KEY);
-    if (!raw) return null;
-    const saved = JSON.parse(raw);
-    if (!saved || !saved.savedAt || !saved.payload || Date.now() - saved.savedAt > MARKET_BROWSER_CACHE_MS) return null;
-    if (!Array.isArray(saved.payload.quotes) || !saved.payload.quotes.length) return null;
-    return saved;
-  } catch (error) {
-    return null;
-  }
-}
-
-async function loadMarketSnapshot(force) {
-  const grid = document.getElementById("market-quote-grid");
-  const status = document.getElementById("market-quotes-status");
-  const refreshButton = document.getElementById("market-refresh-button");
-  if (!grid || !status) return;
-  if (marketLoadPromise) return marketLoadPromise;
-
-  const cached = readMarketBrowserCache();
-  if (!force && cached) {
-    renderMarketSnapshot(cached.payload, { cached: true });
-    return;
-  }
-
-  if (refreshButton) {
-    refreshButton.disabled = true;
-    refreshButton.textContent = "Loading…";
-  }
-  status.textContent = "Requesting the latest available end-of-day prices…";
-
-  marketLoadPromise = (async function() {
-    try {
-      const response = await fetch(getWorkerApiBase() + "/api/market?symbols=SPY,QQQ,DIA", {
-        headers: { "Accept": "application/json" },
-        cache: "no-store"
-      });
-      let payload = {};
-      try {
-        payload = await response.json();
-      } catch (error) {
-        throw new Error("The Worker response was not readable. Check its Cloudflare deployment.");
-      }
-
-      if (payload && payload.ok && Array.isArray(payload.quotes) && payload.quotes.length) {
-        try {
-          window.localStorage.setItem(MARKET_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), payload: payload }));
-        } catch (error) {
-          // Display the response for this visit even if browser storage is unavailable.
-        }
-      }
-      renderMarketSnapshot(payload, { cached: false });
-    } catch (error) {
-      renderMarketSnapshot({
-        ok: false,
-        configured: false,
-        quotes: [],
-        errors: [],
-        error: "Could not reach the market-data Worker. Check Cloudflare deployment, then use Settings → Market data connection to test."
-      });
-    } finally {
-      marketLoadPromise = null;
-      if (refreshButton) {
-        refreshButton.disabled = false;
-        refreshButton.textContent = "Refresh quotes";
-      }
-    }
-  })();
-  return marketLoadPromise;
-}
-
-(function setupMarketSnapshot() {
-  const refreshButton = document.getElementById("market-refresh-button");
-  if (refreshButton) {
-    refreshButton.addEventListener("click", function() {
-      // The Worker caches provider data for 24 hours to preserve the free API quota.
-      loadMarketSnapshot(true);
-    });
-  }
-  loadMarketSnapshot(false);
-})();
-
-(function setupMarketConnectionTest() {
-  const testButton = document.getElementById("market-test-button");
-  const status = document.getElementById("market-api-status");
-  if (!testButton || !status) return;
-
-  const base = getWorkerApiBase();
-  fetch(base + "/api/health", { headers: { "Accept": "application/json" }, cache: "no-store" })
-    .then(function(response) { return response.json(); })
-    .then(function(health) {
-      if (health && health.marketConfigured) {
-        status.textContent = "Alpha Vantage key is present. Run a one-symbol test to confirm the provider accepts it.";
-      } else {
-        status.textContent = "Alpha Vantage key not detected on the Worker. Add ALPHA_VANTAGE_API_KEY as a Cloudflare secret, then test.";
-      }
-    })
-    .catch(function() {
-      status.textContent = "Could not check Worker status. Make sure the latest Worker deployment is active.";
-    });
-
-  testButton.addEventListener("click", async function() {
-    testButton.disabled = true;
-    const priorText = testButton.textContent;
-    testButton.textContent = "Testing…";
-    status.textContent = "Testing Alpha Vantage with one symbol (AAPL). This uses one provider request if not already cached.";
-    try {
-      const response = await fetch(base + "/api/market?symbols=AAPL", {
-        headers: { "Accept": "application/json" },
-        cache: "no-store"
-      });
-      const payload = await response.json();
-      const quote = marketQuoteForSymbol(payload, "AAPL");
-      if (response.ok && payload.ok && quote) {
-        status.textContent = "Connection works. AAPL close: " + formatMarketPrice(quote.close) + " · data date " + formatMarketDate(quote.date) + ".";
-      } else {
-        status.textContent = payload.error || (payload.errors && payload.errors[0] && payload.errors[0].error) || "The provider did not return a usable quote. Check the API key and Alpha Vantage plan.";
-      }
-    } catch (error) {
-      status.textContent = "Could not read the Worker response. Confirm the latest Worker deployment and try again.";
-    } finally {
-      testButton.disabled = false;
-      testButton.textContent = priorText;
-    }
   });
 })();
 
@@ -854,4 +607,178 @@ const FUNDAMENTAL_SECTIONS = [
     status.textContent = "Review reset for " + activeName + ". All 42 checks are now not yet verified.";
     updateScore();
   });
+})();
+
+
+/* Financial tools: compound growth calculator and glossary search. */
+(function setupCompoundCalculator() {
+  const form = document.getElementById("compound-form");
+  const results = document.getElementById("compound-results");
+  if (!form || !results) return;
+  function money(value) {
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(value);
+  }
+  form.addEventListener("submit", function(event) {
+    event.preventDefault();
+    const initial = Number(document.getElementById("initial-balance").value);
+    const monthly = Number(document.getElementById("monthly-contribution").value);
+    const annualRate = Number(document.getElementById("annual-rate").value);
+    const years = Number(document.getElementById("growth-years").value);
+    const valid = [initial, monthly, annualRate, years].every(Number.isFinite)
+      && initial >= 0 && monthly >= 0 && annualRate >= 0 && annualRate <= 50
+      && years >= 1 && years <= 80 && Number.isInteger(years);
+    if (!valid) {
+      results.textContent = "Check the values and enter non-negative amounts, an annual rate from 0% to 50%, and 1–80 whole years.";
+      return;
+    }
+    const months = years * 12;
+    const monthlyRate = annualRate / 100 / 12;
+    const factor = Math.pow(1 + monthlyRate, months);
+    const futureInitial = initial * factor;
+    const futureMonthly = monthlyRate === 0 ? monthly * months : monthly * ((factor - 1) / monthlyRate);
+    const projected = futureInitial + futureMonthly;
+    const contributed = initial + monthly * months;
+    const resultsGrid = document.createElement("div");
+    resultsGrid.className = "tool-results-grid";
+    [["Estimated future value", money(projected)],["Total contributions", money(contributed)],["Estimated growth", money(projected-contributed)]].forEach(function(item,index) {
+      const card = document.createElement("div");
+      card.className = "tool-result-card" + (index === 0 ? " primary-result" : "");
+      const label = document.createElement("span");
+      label.textContent = item[0];
+      const value = document.createElement("strong");
+      value.textContent = item[1];
+      card.append(label,value);
+      resultsGrid.append(card);
+    });
+    results.replaceChildren(resultsGrid);
+  });
+})();
+
+(function setupGlossarySearch() {
+  const search = document.getElementById("glossary-search");
+  const list = document.getElementById("glossary-list");
+  const count = document.getElementById("glossary-result-count");
+  const empty = document.getElementById("glossary-empty");
+  if (!search || !list || !count || !empty) return;
+  const terms = Array.from(list.querySelectorAll(".glossary-term"));
+  function filterTerms() {
+    const query = search.value.trim().toLowerCase();
+    let visible = 0;
+    terms.forEach(function(term) {
+      const match = !query || term.textContent.toLowerCase().includes(query);
+      term.hidden = !match;
+      if (match) visible += 1;
+    });
+    count.textContent = "Showing " + visible + " of " + terms.length + " terms";
+    empty.hidden = visible > 0;
+  }
+  search.addEventListener("input", filterTerms);
+  filterTerms();
+})();
+
+/* Savings Portfolio: goal data is stored locally in the user's browser. */
+(function setupSavingsPortfolio() {
+  const form = document.getElementById("savings-goal-form");
+  const grid = document.getElementById("savings-goals-grid");
+  const empty = document.getElementById("savings-empty-state");
+  const status = document.getElementById("savings-status");
+  const totalSaved = document.getElementById("savings-total-saved");
+  const totalTarget = document.getElementById("savings-total-target");
+  const goalCount = document.getElementById("savings-goal-count");
+  if (!form || !grid || !empty || !status || !totalSaved || !totalTarget || !goalCount) return;
+  const storageKey = "meridian-savings-goals-v1";
+  let goals = [];
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(storageKey) || "[]");
+    if (Array.isArray(stored)) goals = stored.filter(function(g) {
+      return g && typeof g.id === "string" && typeof g.name === "string" && g.name.trim()
+        && Number.isFinite(Number(g.targetAmount)) && Number(g.targetAmount)>0
+        && Number.isFinite(Number(g.savedAmount)) && Number(g.savedAmount)>=0;
+    }).map(function(g) {
+      return {id:g.id,name:g.name.slice(0,80),targetAmount:Number(g.targetAmount),savedAmount:Number(g.savedAmount),targetDate:typeof g.targetDate==="string"?g.targetDate:""};
+    });
+  } catch (error) { /* Continue in memory if local storage is unavailable. */ }
+
+  function currency(value) {
+    return new Intl.NumberFormat("en-US", {style:"currency",currency:"USD",maximumFractionDigits:2}).format(value);
+  }
+  function persist() {
+    try { window.localStorage.setItem(storageKey,JSON.stringify(goals)); return true; }
+    catch (error) { return false; }
+  }
+  function el(tag,cls,text) {
+    const node=document.createElement(tag);
+    if(cls)node.className=cls;
+    if(text!==undefined)node.textContent=text;
+    return node;
+  }
+  function render() {
+    grid.replaceChildren();
+    empty.hidden=goals.length>0;
+    totalSaved.textContent=currency(goals.reduce((sum,g)=>sum+g.savedAmount,0));
+    totalTarget.textContent=currency(goals.reduce((sum,g)=>sum+g.targetAmount,0));
+    goalCount.textContent=String(goals.length);
+    goals.forEach(function(goal) {
+      const card=el("article","panel savings-goal-card");
+      const top=el("div","savings-goal-top");
+      const titleWrap=el("div","savings-goal-title-wrap");
+      titleWrap.append(el("h3","",goal.name));
+      if(goal.targetDate) {
+        const d=new Date(goal.targetDate+"T12:00:00");
+        titleWrap.append(el("p","muted small",Number.isNaN(d.getTime())?"Target date: "+goal.targetDate:"Target date: "+d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"})));
+      }
+      const percent=Math.min(100,Math.max(0,goal.savedAmount/goal.targetAmount*100));
+      top.append(titleWrap,el("span","savings-goal-percent",Math.round(percent)+"%"));
+      card.append(top);
+      const amounts=el("div","savings-goal-amounts");
+      amounts.append(el("strong","",currency(goal.savedAmount)),el("span","muted","of "+currency(goal.targetAmount)));
+      card.append(amounts);
+      const track=el("div","savings-progress-track");
+      track.setAttribute("role","progressbar");
+      track.setAttribute("aria-label","Progress for "+goal.name);
+      track.setAttribute("aria-valuemin","0"); track.setAttribute("aria-valuemax","100"); track.setAttribute("aria-valuenow",String(Math.round(percent)));
+      const fill=el("div","savings-progress-fill"); fill.style.width=percent+"%"; track.append(fill); card.append(track);
+      const remaining=Math.max(0,goal.targetAmount-goal.savedAmount);
+      card.append(el("p","savings-remaining muted small",remaining===0?"Goal reached — anything extra is a bonus.":currency(remaining)+" left to reach your goal."));
+      const update=el("form","goal-update-form");
+      const label=el("label","tool-field-label","Update amount saved ($)");
+      const input=el("input","goal-amount-input");
+      input.type="number"; input.min="0"; input.max="100000000"; input.step="0.01"; input.required=true; input.value=String(goal.savedAmount);
+      input.setAttribute("aria-label","Amount saved for "+goal.name); label.append(input);
+      const actions=el("div","goal-card-actions");
+      const save=el("button","secondary-button","Save progress"); save.type="submit";
+      const remove=el("button","goal-delete-button","Remove goal"); remove.type="button";
+      actions.append(save,remove); update.append(label,actions);
+      update.addEventListener("submit",function(event) {
+        event.preventDefault();
+        const val=Number(input.value);
+        if(!Number.isFinite(val)||val<0||val>100000000) {status.textContent="Enter a valid saved amount from $0 to $100,000,000.";return;}
+        goal.savedAmount=val;
+        const ok=persist(); render();
+        status.textContent=ok?"Savings progress updated.":"Progress updated for this visit, but browser storage is unavailable.";
+      });
+      remove.addEventListener("click",function() {
+        if(!window.confirm("Remove the savings goal “"+goal.name+"”? This cannot be undone."))return;
+        goals=goals.filter(function(g){return g.id!==goal.id;});
+        const ok=persist(); render();
+        status.textContent=ok?"Savings goal removed.":"Goal removed for this visit, but browser storage is unavailable.";
+      });
+      card.append(update); grid.append(card);
+    });
+  }
+
+  form.addEventListener("submit",function(event) {
+    event.preventDefault();
+    const name=document.getElementById("goal-name").value.trim();
+    const target=Number(document.getElementById("goal-target").value);
+    const saved=Number(document.getElementById("goal-current").value);
+    const date=document.getElementById("goal-date").value;
+    if(!name||!Number.isFinite(target)||target<=0||target>100000000||!Number.isFinite(saved)||saved<0||saved>100000000) {
+      status.textContent="Enter a goal name, a positive target, and a valid current saved amount."; return;
+    }
+    goals.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,8),name:name.slice(0,80),targetAmount:target,savedAmount:saved,targetDate:date});
+    const ok=persist(); render(); form.reset(); document.getElementById("goal-current").value="0";
+    status.textContent=ok?"Savings goal added.":"Goal added for this visit, but browser storage is unavailable.";
+  });
+  render();
 })();
