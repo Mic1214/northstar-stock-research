@@ -308,26 +308,34 @@
         <div class="page-heading"><div><p class="eyebrow">PRACTICAL MONEY TOOLS</p><h1>Financial Tools</h1><p class="subheading">Explore simple calculations and clear explanations to help you understand your options.</p></div></div>
         <div class="tool-grid">
           <section class="panel tool-panel" aria-labelledby="compound-title">
-            <div class="tool-title-row"><div><p class="eyebrow">CALCULATOR</p><h2 id="compound-title">Compound Growth Calculator</h2></div><span class="tag">Illustrative</span></div>
-            <p class="muted tool-description">Estimate how an initial amount and regular monthly contributions might grow over time with a rate you choose.</p>
+            <div class="tool-title-row"><div><p class="eyebrow">CALCULATOR</p><h2 id="compound-title">Compound Growth Calculator</h2></div><span class="tag">Estimate only</span></div>
+            <p class="muted tool-description">Estimate future value from a starting amount, monthly deposits, and an assumed rate.</p>
             <form id="compound-form" class="tool-form">
               <div class="tool-form-grid">
-                <div class="tool-field"><label for="initial-balance">Starting amount ($)</label><input id="initial-balance" type="number" min="0" max="100000000" step="0.01" value="1000" required></div>
-                <div class="tool-field"><label for="monthly-contribution">Monthly contribution ($)</label><input id="monthly-contribution" type="number" min="0" max="1000000" step="0.01" value="100" required></div>
-                <div class="tool-field"><label for="annual-rate">Assumed annual return (%)</label><input id="annual-rate" type="number" min="0" max="50" step="0.1" value="5" required></div>
+                <div class="tool-field"><label for="initial-balance">Initial amount ($)</label><input id="initial-balance" type="number" min="0" max="100000000" step="0.01" value="1000" required></div>
+                <div class="tool-field"><label for="monthly-contribution">Monthly deposit ($)</label><input id="monthly-contribution" type="number" min="0" max="1000000" step="0.01" value="100" required></div>
+                <div class="tool-field"><label for="annual-rate">Annual rate (%)</label><input id="annual-rate" type="number" min="0" max="50" step="0.1" value="5" required></div>
                 <div class="tool-field"><label for="growth-years">Years to grow</label><input id="growth-years" type="number" min="1" max="80" step="1" value="10" required></div>
-                <div class="tool-field"><label for="compounding-frequency">Compound frequency</label><select id="compounding-frequency" class="tool-input" required>
-                  <option value="1" selected>Annually (1 time/year)</option>
-                  <option value="2">Semiannually (2 times/year)</option>
-                  <option value="4">Quarterly (4 times/year)</option>
-                  <option value="12">Monthly (12 times/year)</option>
-                  <option value="365">Daily (365 times/year)</option>
-                </select></div>
+                <div class="tool-field compound-frequency-field">
+                  <div class="compound-frequency-control">
+                    <div class="compound-frequency-copy">
+                      <label for="compounding-frequency">Compounding frequency</label>
+                      <small class="field-hint">Use the same setting when comparing with Investor.gov.</small>
+                    </div>
+                    <select id="compounding-frequency" class="tool-input" required>
+                      <option value="1" selected>Annually</option>
+                      <option value="2">Twice per year</option>
+                      <option value="4">Quarterly</option>
+                      <option value="12">Monthly</option>
+                      <option value="365">Daily</option>
+                    </select>
+                  </div>
+                </div>
               </div>
               <button type="submit" class="primary-button">Calculate growth <span aria-hidden="true">→</span></button>
             </form>
             <div id="compound-results" class="tool-results" role="status" aria-live="polite"><p class="muted">Change the assumptions and calculate to see an estimate.</p></div>
-            <p class="muted small tool-disclaimer">This is a simplified illustration, not a forecast. Actual returns vary; fees, taxes, inflation, and changes in contributions are not included. Monthly contributions are grouped into the selected compounding periods and treated as added at the end of each period. Match this frequency to Investor.gov when comparing results.</p>
+            <p class="muted small tool-disclaimer">Estimate only, not a forecast. Excludes fees, taxes, and inflation. For this estimate, monthly deposits are grouped into each compounding period and added at period-end.</p>
           </section>
           <section class="panel tool-panel glossary-panel" aria-labelledby="glossary-title">
             <div class="tool-title-row"><div><p class="eyebrow">QUICK REFERENCE</p><h2 id="glossary-title">Financial Glossary</h2></div><span class="tag">Learn the terms</span></div>
@@ -394,6 +402,6 @@
       <footer><span>Meridian · Financial learning workspace</span><span>Not investment advice · Verify information before relying on it</span></footer>
     </main>
   </div>
-  <script src="app.js?v=20261029-compounding-frequency"></script>
+  <script src="app.js?v=20261029-clean-calculator"></script>
 </body>
 </html>
