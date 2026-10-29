@@ -345,3 +345,35 @@ button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{o
 @media(max-width:760px){.home-intro{align-items:flex-start;flex-direction:column;gap:14px;padding:20px}.home-intro h2{font-size:20px}.tool-form-grid,.goal-form-grid{grid-template-columns:1fr}.goal-name-field{grid-column:auto}.tool-results-grid{grid-template-columns:1fr}.savings-summary-grid{grid-template-columns:1fr}.savings-summary-card{padding:16px}.savings-goals-grid,.glossary-list{grid-template-columns:1fr}.goal-form-actions{align-items:flex-start;flex-direction:column}.goal-form-actions .primary-button{width:100%}}
 @media(prefers-reduced-motion:reduce){.savings-progress-fill{transition:none}}
 
+
+/* Cleaner compound growth calculator */
+#compound-title{font-size:20px;letter-spacing:-.45px}
+#compound-form{gap:14px}
+#compound-form .tool-form-grid{gap:12px}
+#compound-form .tool-field label{font-size:11px;letter-spacing:.05px}
+#compound-form .tool-field input{min-height:44px;border-radius:12px;padding:10px 12px;font-variant-numeric:tabular-nums}
+#compound-form .compound-frequency-field{grid-column:1/-1}
+#compound-form .compound-frequency-control{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 14px;border:1px solid var(--line);border-radius:15px;background:color-mix(in srgb,var(--panel) 78%,var(--theme-accent) 22%)}
+#compound-form .compound-frequency-copy{min-width:0}
+#compound-form .compound-frequency-copy label{margin:0 0 4px;font-size:11px;font-weight:700;color:var(--text)}
+#compound-form .field-hint{display:block;font-size:10px;line-height:1.5;color:var(--muted)}
+#compound-form #compounding-frequency{width:min(230px,48%);min-height:40px;padding:8px 11px;border-radius:11px;background:var(--bg)}
+#compound-form .primary-button{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;border-radius:13px}
+#compound-results{margin-top:15px}
+#compound-results .compound-results-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#compound-results .tool-result-card{border-radius:15px;padding:13px 14px;background:color-mix(in srgb,var(--panel) 91%,var(--theme-accent) 9%)}
+#compound-results .tool-result-card span{font-size:10px;line-height:1.45}
+#compound-results .tool-result-card strong{margin-top:5px;font-size:17px;letter-spacing:-.25px;line-height:1.3;font-variant-numeric:tabular-nums}
+#compound-results .compound-results-grid .primary-result{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 17px;border-color:var(--theme-accent-border);background:linear-gradient(115deg,color-mix(in srgb,var(--theme-accent-soft) 78%,var(--panel) 22%),color-mix(in srgb,var(--panel) 88%,var(--theme-accent) 12%))}
+#compound-results .compound-results-grid .primary-result span{font-size:11px;color:var(--text)}
+#compound-results .compound-results-grid .primary-result strong{margin:0;font-size:25px;line-height:1.2}
+#compound-results .compound-assumptions{margin:10px 2px 0;padding-top:9px;border-top:1px solid var(--line);font-size:10px;line-height:1.55}
+#compound-title~*{overflow-wrap:anywhere}
+@media(max-width:760px){
+  #compound-form .compound-frequency-control{align-items:stretch;flex-direction:column;gap:10px}
+  #compound-form #compounding-frequency{width:100%;max-width:none}
+  #compound-results .compound-results-grid{grid-template-columns:1fr}
+  #compound-results .compound-results-grid .primary-result{grid-column:auto}
+  #compound-results .compound-results-grid .primary-result strong{font-size:22px}
+}
+
